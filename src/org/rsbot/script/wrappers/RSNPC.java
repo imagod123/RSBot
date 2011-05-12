@@ -48,7 +48,7 @@ public class RSNPC extends RSCharacter {
 
 	@Override
 	public int getLevel() {
-		final org.rsbot.client.RSNPC c = npc.get();
+		org.rsbot.client.RSNPC c = npc.get();
 		if (c == null) {
 			return -1;
 		} else {
