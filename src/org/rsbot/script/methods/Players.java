@@ -1,10 +1,10 @@
 package org.rsbot.script.methods;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.rsbot.script.util.Filter;
 import org.rsbot.script.wrappers.RSPlayer;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Player related operations.
@@ -15,8 +15,7 @@ public class Players extends MethodProvider {
 	 * A filter that accepts all matches.
 	 */
 	public static final Filter<RSPlayer> ALL_FILTER = new Filter<RSPlayer>() {
-		@Override
-		public boolean accept(final RSPlayer player) {
+		public boolean accept(RSPlayer player) {
 			return true;
 		}
 	};
@@ -50,12 +49,12 @@ public class Players extends MethodProvider {
 	 * @return All valid RSPlayers.
 	 */
 	public RSPlayer[] getAll(final Filter<RSPlayer> filter) {
-		final int[] indices = methods.client.getRSPlayerIndexArray();
-		final org.rsbot.client.RSPlayer[] array = methods.client.getRSPlayerArray();
-		final Set<RSPlayer> players = new HashSet<RSPlayer>();
-		for (final int index : indices) {
+		int[] indices = methods.client.getRSPlayerIndexArray();
+		org.rsbot.client.RSPlayer[] array = methods.client.getRSPlayerArray();
+		Set<RSPlayer> players = new HashSet<RSPlayer>();
+		for (int index : indices) {
 			if (index != 0 && array[index] != null) {
-				final RSPlayer player = new RSPlayer(methods, array[index]);
+				RSPlayer player = new RSPlayer(methods, array[index]);
 				if (filter.accept(player)) {
 					players.add(player);
 				}
@@ -76,15 +75,15 @@ public class Players extends MethodProvider {
 	public RSPlayer getNearest(final Filter<RSPlayer> filter) {
 		int min = 20;
 		RSPlayer closest = null;
-		final org.rsbot.client.RSPlayer[] players = methods.client.getRSPlayerArray();
-		final int[] indices = methods.client.getRSPlayerIndexArray();
-		for (final int index : indices) {
+		org.rsbot.client.RSPlayer[] players = methods.client.getRSPlayerArray();
+		int[] indices = methods.client.getRSPlayerIndexArray();
+		for (int index : indices) {
 			if (players[index] == null) {
 				continue;
 			}
-			final RSPlayer player = new RSPlayer(methods, players[index]);
+			RSPlayer player = new RSPlayer(methods, players[index]);
 			if (filter.accept(player)) {
-				final int distance = methods.calc.distanceTo(player);
+				int distance = methods.calc.distanceTo(player);
 				if (distance < min) {
 					min = distance;
 					closest = player;
@@ -105,8 +104,7 @@ public class Players extends MethodProvider {
 	 */
 	public RSPlayer getNearest(final String name) {
 		return getNearest(new Filter<RSPlayer>() {
-			@Override
-			public boolean accept(final RSPlayer player) {
+			public boolean accept(RSPlayer player) {
 				return player.getName().equals(name);
 			}
 		});
@@ -124,8 +122,7 @@ public class Players extends MethodProvider {
 	 */
 	public RSPlayer getNearest(final int level) {
 		return getNearest(new Filter<RSPlayer>() {
-			@Override
-			public boolean accept(final RSPlayer player) {
+			public boolean accept(RSPlayer player) {
 				return player.getCombatLevel() == level;
 			}
 		});

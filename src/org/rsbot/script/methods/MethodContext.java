@@ -177,14 +177,9 @@ public class MethodContext {
 	public final Trade trade = new Trade(this);
 
 	/**
-	 * The singleton of Lobby
+	 * The singleton of Trade
 	 */
 	public final Lobby lobby = new Lobby(this);
-
-	/**
-	 * The singleton of Paint
-	 */
-	public final Paint paint = new Paint(this);
 
 	/**
 	 * The Bot's input manager
@@ -196,17 +191,12 @@ public class MethodContext {
 	 */
 	public final Client client;
 
-	/**
-	 * The Web
-	 */
-	public final Web web = new Web(this);
-
 	public final Bot bot;
 
-	public MethodContext(final Bot bot) {
+	public MethodContext(Bot bot) {
 		this.bot = bot;
-		client = bot.getClient();
-		inputManager = bot.getInputManager();
+		this.client = bot.getClient();
+		this.inputManager = bot.getInputManager();
 	}
 
 }

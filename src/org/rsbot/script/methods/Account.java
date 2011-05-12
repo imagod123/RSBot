@@ -1,8 +1,8 @@
 package org.rsbot.script.methods;
 
-import java.util.logging.Logger;
-
 import org.rsbot.gui.AccountManager;
+
+import java.util.logging.Logger;
 
 /**
  * Selected account information.
@@ -11,7 +11,7 @@ public class Account extends MethodProvider {
 
 	Logger log = Logger.getLogger(getClass().getName());
 
-	public Account(final MethodContext ctx) {
+	public Account(MethodContext ctx) {
 		super(ctx);
 	}
 

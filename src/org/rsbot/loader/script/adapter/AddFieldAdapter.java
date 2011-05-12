@@ -16,14 +16,13 @@ public class AddFieldAdapter extends ClassAdapter {
 
 	private final Field[] fields;
 
-	public AddFieldAdapter(final ClassVisitor delegate, final Field[] fields) {
+	public AddFieldAdapter(ClassVisitor delegate, Field[] fields) {
 		super(delegate);
 		this.fields = fields;
 	}
 
-	@Override
 	public void visitEnd() {
-		for (final Field f : fields) {
+		for (Field f : fields) {
 			cv.visitField(f.access, f.name, f.desc, null, null);
 		}
 		cv.visitEnd();

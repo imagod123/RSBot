@@ -1,11 +1,8 @@
 package org.rsbot.script.methods;
 
-import java.awt.Point;
+import org.rsbot.script.wrappers.*;
 
-import org.rsbot.script.wrappers.RSLocalPath;
-import org.rsbot.script.wrappers.RSPath;
-import org.rsbot.script.wrappers.RSTile;
-import org.rsbot.script.wrappers.RSTilePath;
+import java.awt.*;
 
 /**
  * Walking related operations.
@@ -40,7 +37,7 @@ public class Walking extends MethodProvider {
 	 * tile.
 	 *
 	 * @param destination The destination tile.
-	 * @return The path as an RSPath.
+	 * @return The path as an RSTile array.
 	 */
 	public RSPath getPath(final RSTile destination) {
 		return new RSLocalPath(methods, destination);
@@ -53,10 +50,10 @@ public class Walking extends MethodProvider {
 	 * @return <tt>true</tt> if local; otherwise <tt>false</tt>.
 	 */
 	public boolean isLocal(final RSTile tile) {
-		final int[][] flags = getCollisionFlags(methods.game.getPlane());
-		final int x = tile.getX() - methods.game.getBaseX();
-		final int y = tile.getY() - methods.game.getBaseY();
-		return flags != null && x >= 0 && y >= 0 && x < flags.length && y < flags.length;
+		int[][] flags = getCollisionFlags(methods.game.getPlane());
+		int x = tile.getX() - methods.game.getBaseX();
+		int y = tile.getY() - methods.game.getBaseY();
+		return (flags != null && x >= 0 && y >= 0 && x < flags.length && y < flags.length);
 	}
 
 	/**
@@ -100,37 +97,14 @@ public class Walking extends MethodProvider {
 	 * @return <tt>true</tt> if the tile was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean walkTileMM(final RSTile t, final int x, final int y) {
-		int xx = t.getX(), yy = t.getY();
-		if (x > 0) {
-			if (random(1, 2) == random(1, 2)) {
-				xx += random(0, x);
-			} else {
-				xx -= random(0, x);
-			}
-		}
-		if (y > 0) {
-			if (random(1, 2) == random(1, 2)) {
-				yy += random(0, y);
-			} else {
-				yy -= random(0, y);
-			}
-		}
-		RSTile dest = new RSTile(xx, yy);
-		if (!methods.calc.tileOnMap(dest)) {
-			dest = getClosestTileOnMap(dest);
-		}
-		final Point p = methods.calc.tileToMinimap(dest);
+		RSTile dest = new RSTile(t.getX() + random(0, x), t.getY()
+				+ random(0, y));
+		Point p = methods.calc.tileToMinimap(dest);
 		if (p.x != -1 && p.y != -1) {
 			methods.mouse.move(p);
-			final Point p2 = methods.calc.tileToMinimap(dest);
+			Point p2 = methods.calc.tileToMinimap(dest);
 			if (p2.x != -1 && p2.y != -1) {
-				if (!methods.mouse.getLocation().equals(p2)) {//We must've moved while walking, move again!
-					methods.mouse.move(p2);
-				}
-				if (!methods.mouse.getLocation().equals(p2)) {//Get exact since we're moving... should be removed?
-					methods.mouse.hop(p2);
-				}
-				methods.mouse.click(true);
+				methods.mouse.click(p2, true);
 				return true;
 			}
 		}
@@ -145,20 +119,26 @@ public class Walking extends MethodProvider {
 	 * @return <tt>true</tt> if the tile was clicked; otherwise <tt>false</tt>.
 	 */
 	public boolean walkTileMM(final RSTile t, final int r) {
-		int x = t.getX();
-		int y = t.getY();
-		if (random(1, 2) == random(1, 2)) {
-			x += random(0, r);
-		} else {
-			x -= random(0, r);
+		// Just a few ideas that could improve this method.
+		RSTile dest = r > 0 ? new RSTile(t.getX() + random(-r, r + 1), t.getY()
+				+ random(-r, r + 1)) : t;
+		if (methods.players.getMyPlayer().getLocation().equals(dest)) {
+			return false;
 		}
-		if (random(1, 2) == random(1, 2)) {
-			y += random(0, r);
-		} else {
-			y -= random(0, r);
+		Point p = methods.calc.tileToMinimap(dest);
+		if (p.x == -1) {
+			dest = getClosestTileOnMap(t);
+			p = methods.calc.tileToMinimap(dest);
 		}
-		final RSTile dest = new RSTile(x, y);
-		return !methods.players.getMyPlayer().getLocation().equals(dest) && walkTileMM(dest, 0, 0);
+		if (p.x != -1) {
+			methods.mouse.move(p);
+			p = methods.calc.tileToMinimap(dest);
+			if (p.x != -1) {
+				methods.mouse.click(p, true);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -170,7 +150,8 @@ public class Walking extends MethodProvider {
 	 * @return True if successful.
 	 */
 	public boolean walkTileOnScreen(final RSTile tileToWalk) {
-		return methods.tiles.doAction(methods.calc.getTileOnScreen(tileToWalk), "Walk ");
+		return methods.tiles.doAction(methods.calc.getTileOnScreen(tileToWalk),
+				"Walk ");
 	}
 
 	/**
@@ -192,11 +173,13 @@ public class Walking extends MethodProvider {
 	public boolean rest(final int stopEnergy) {
 		int energy = getEnergy();
 		for (int d = 0; d < 5; d++) {
-			methods.interfaces.getComponent(INTERFACE_RUN_ORB, 1).doAction("Rest");
+			methods.interfaces.getComponent(INTERFACE_RUN_ORB, 1).doAction(
+					"Rest");
 			methods.mouse.moveSlightly();
 			sleep(random(400, 600));
-			final int anim = methods.players.getMyPlayer().getAnimation();
-			if (anim == 12108 || anim == 2033 || anim == 2716 || anim == 11786 || anim == 5713) {
+			int anim = methods.players.getMyPlayer().getAnimation();
+			if (anim == 12108 || anim == 2033 || anim == 2716 || anim == 11786
+					|| anim == 5713) {
 				break;
 			}
 			if (d == 4) {
@@ -229,10 +212,10 @@ public class Walking extends MethodProvider {
 	 * @return The path as an RSTile array.
 	 */
 	@Deprecated
-	public RSTile[] findPath(final RSTile destination) {
-		final RSLocalPath path = new RSLocalPath(methods, destination);
+	public RSTile[] findPath(RSTile destination) {
+		RSLocalPath path = new RSLocalPath(methods, destination);
 		if (path.isValid()) {
-			final RSTilePath tp = path.getCurrentTilePath();
+			RSTilePath tp = path.getCurrentTilePath();
 			if (tp != null) {
 				return tp.toArray();
 			}
@@ -251,7 +234,7 @@ public class Walking extends MethodProvider {
 	 *             {@link org.rsbot.script.wrappers.RSTile#randomize(int, int)}.
 	 */
 	@Deprecated
-	public RSTile randomize(final RSTile tile, final int maxXDeviation, final int maxYDeviation) {
+	public RSTile randomize(RSTile tile, int maxXDeviation, int maxYDeviation) {
 		return tile.randomize(maxXDeviation, maxYDeviation);
 	}
 
@@ -263,8 +246,8 @@ public class Walking extends MethodProvider {
 	 */
 	public RSTile getClosestTileOnMap(final RSTile tile) {
 		if (!methods.calc.tileOnMap(tile) && methods.game.isLoggedIn()) {
-			final RSTile loc = methods.players.getMyPlayer().getLocation();
-			final RSTile walk = new RSTile((loc.getX() + tile.getX()) / 2,
+			RSTile loc = methods.players.getMyPlayer().getLocation();
+			RSTile walk = new RSTile((loc.getX() + tile.getX()) / 2,
 					(loc.getY() + tile.getY()) / 2);
 			return methods.calc.tileOnMap(walk) ? walk
 					: getClosestTileOnMap(walk);
@@ -290,7 +273,7 @@ public class Walking extends MethodProvider {
 		try {
 			return Integer.parseInt(methods.interfaces.getComponent(750, 5)
 					.getText());
-		} catch (final NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return 0;
 		}
 	}
@@ -328,8 +311,8 @@ public class Walking extends MethodProvider {
 	 * @return The offset as an RSTile.
 	 */
 	public RSTile getCollisionOffset(final int plane) {
-		final org.rsbot.client.RSGroundData data = methods.client
-		.getRSGroundDataArray()[plane];
+		org.rsbot.client.RSGroundData data = methods.client
+				.getRSGroundDataArray()[plane];
 		return new RSTile(data.getX(), data.getY());
 	}
 
@@ -347,8 +330,8 @@ public class Walking extends MethodProvider {
 	 *             .
 	 */
 	@Deprecated
-	public RSTile randomizeTile(final RSTile tile, final int maxXDeviation,
-			final int maxYDeviation) {
+	public RSTile randomizeTile(RSTile tile, int maxXDeviation,
+	                            int maxYDeviation) {
 		return randomize(tile, maxXDeviation, maxYDeviation);
 	}
 
@@ -361,7 +344,7 @@ public class Walking extends MethodProvider {
 	 * @see #walkPathMM(RSTile[], int)
 	 */
 	@Deprecated
-	public boolean walkPathMM(final RSTile[] path) {
+	public boolean walkPathMM(RSTile[] path) {
 		return walkPathMM(path, 16);
 	}
 
@@ -375,7 +358,7 @@ public class Walking extends MethodProvider {
 	 * @see #walkPathMM(RSTile[], int, int)
 	 */
 	@Deprecated
-	public boolean walkPathMM(final RSTile[] path, final int maxDist) {
+	public boolean walkPathMM(RSTile[] path, int maxDist) {
 		return walkPathMM(path, maxDist, 1, 1);
 	}
 
@@ -390,7 +373,7 @@ public class Walking extends MethodProvider {
 	 * @see #walkPathMM(RSTile[], int, int, int)
 	 */
 	@Deprecated
-	public boolean walkPathMM(final RSTile[] path, final int randX, final int randY) {
+	public boolean walkPathMM(RSTile[] path, int randX, int randY) {
 		return walkPathMM(path, 16, randX, randY);
 	}
 
@@ -405,11 +388,11 @@ public class Walking extends MethodProvider {
 	 *         <tt>false</tt>.
 	 */
 	@Deprecated
-	public boolean walkPathMM(final RSTile[] path, final int maxDist, final int randX, final int randY) {
+	public boolean walkPathMM(RSTile[] path, int maxDist, int randX, int randY) {
 		try {
-			final RSTile next = nextTile(path, maxDist);
+			RSTile next = nextTile(path, maxDist);
 			return next != null && walkTileMM(next, randX, randY);
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
@@ -423,7 +406,7 @@ public class Walking extends MethodProvider {
 	 * @see #walkPathOnScreen(RSTile[], int)
 	 */
 	@Deprecated
-	public boolean walkPathOnScreen(final RSTile[] path) {
+	public boolean walkPathOnScreen(RSTile[] path) {
 		return walkPathOnScreen(path, 16);
 	}
 
@@ -437,10 +420,10 @@ public class Walking extends MethodProvider {
 	 * @return True if successful.
 	 */
 	@Deprecated
-	public boolean walkPathOnScreen(final RSTile[] path, final int maxDist) {
-		final RSTile next = nextTile(path, maxDist);
+	public boolean walkPathOnScreen(RSTile[] path, int maxDist) {
+		RSTile next = nextTile(path, maxDist);
 		if (next != null) {
-			final RSTile os = methods.calc.getTileOnScreen(next);
+			RSTile os = methods.calc.getTileOnScreen(next);
 			return os != null && methods.tiles.doAction(os, "Walk");
 		}
 		return false;
@@ -454,8 +437,8 @@ public class Walking extends MethodProvider {
 	 *         path.
 	 */
 	@Deprecated
-	public RSTile[] reversePath(final RSTile[] other) {
-		final RSTile[] t = new RSTile[other.length];
+	public RSTile[] reversePath(RSTile[] other) {
+		RSTile[] t = new RSTile[other.length];
 		for (int i = 0; i < t.length; i++) {
 			t[i] = other[other.length - i - 1];
 		}
@@ -471,7 +454,7 @@ public class Walking extends MethodProvider {
 	 * @see #nextTile(RSTile[], int)
 	 */
 	@Deprecated
-	public RSTile nextTile(final RSTile path[]) {
+	public RSTile nextTile(RSTile path[]) {
 		return nextTile(path, 17);
 	}
 
@@ -487,12 +470,12 @@ public class Walking extends MethodProvider {
 	 *         <code>null</code> if far from path or at destination.
 	 */
 	@Deprecated
-	public RSTile nextTile(final RSTile path[], final int skipDist) {
+	public RSTile nextTile(RSTile path[], int skipDist) {
 		int dist = 99;
 		int closest = -1;
 		for (int i = path.length - 1; i >= 0; i--) {
-			final RSTile tile = path[i];
-			final int d = methods.calc.distanceTo(tile);
+			RSTile tile = path[i];
+			int d = methods.calc.distanceTo(tile);
 			if (d < dist) {
 				dist = d;
 				closest = i;
@@ -526,12 +509,23 @@ public class Walking extends MethodProvider {
 	 * @return The new, randomized path.
 	 */
 	@Deprecated
-	public RSTile[] randomizePath(final RSTile[] path, final int maxXDeviation,
-			final int maxYDeviation) {
-		final RSTile[] rez = new RSTile[path.length];
+	public RSTile[] randomizePath(RSTile[] path, int maxXDeviation,
+	                              int maxYDeviation) {
+		RSTile[] rez = new RSTile[path.length];
 		for (int i = 0; i < path.length; i++) {
 			rez[i] = randomize(path[i], maxXDeviation, maxYDeviation);
 		}
 		return rez;
 	}
+
+	/**
+	 * Returns the web of a path.
+	 *
+	 * @param to The tile to walk to.
+	 * @return Returns the web allocation.
+	 */
+	public Web getWebPath(final RSTile to) {
+		return new Web(methods, methods.players.getMyPlayer().getLocation(), to);
+	}
+
 }

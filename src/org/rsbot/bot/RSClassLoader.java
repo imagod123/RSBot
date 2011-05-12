@@ -1,12 +1,7 @@
 package org.rsbot.bot;
 
-import java.awt.AWTPermission;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilePermission;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.*;
+import java.io.*;
 import java.net.SocketPermission;
 import java.net.URL;
 import java.security.CodeSigner;
@@ -25,34 +20,34 @@ public final class RSClassLoader extends ClassLoader {
 	private Map<String, byte[]> classes;
 	private ProtectionDomain domain;
 
-	public RSClassLoader(final Map<String, byte[]> classes, final URL source) {
+	public RSClassLoader(Map<String, byte[]> classes, URL source) {
 		try {
-			final CodeSource codeSource = new CodeSource(source, (CodeSigner[]) null);
+			CodeSource codeSource = new CodeSource(source, (CodeSigner[]) null);
 			domain = new ProtectionDomain(codeSource, getPermissions());
 			this.classes = classes;
 
 			//Get path of org/rsbot/client/RandomAccessFile
 			String s = getClass().getResource("RSClassLoader.class").toString();
 			s = s.replace("bot/RSClassLoader.class", "client/RandomAccessFile.class");
-			final URL url = new URL(s);
+			URL url = new URL(s);
 
 			//Read org/rsbot/client/RandomAccessFile
 			InputStream is = null;
 			try {
-				final ByteArrayOutputStream bos = new ByteArrayOutputStream(5000);
+				ByteArrayOutputStream bos = new ByteArrayOutputStream(5000);
 				is = new BufferedInputStream(url.openStream());
 
-				final byte[] buff = new byte[1024];
+				byte[] buff = new byte[1024];
 				int len;
 				while ((len = is.read(buff)) != -1) {
 					bos.write(buff, 0, len);
 				}
 
-				final byte[] data = bos.toByteArray();
+				byte[] data = bos.toByteArray();
 
 				//Store it so we can load it
 				this.classes.put("org.rsbot.client.RandomAccessFile", data);
-			} catch (final IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
 				if (is != null) {
@@ -101,7 +96,7 @@ public final class RSClassLoader extends ClassLoader {
 	}
 
 	@Override
-	public final Class<?> loadClass(final String name) throws ClassNotFoundException {
+	public final Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (classes.containsKey(name)) {
 			final byte buffer[] = classes.remove(name);
 			return defineClass(name, buffer, 0, buffer.length, domain);

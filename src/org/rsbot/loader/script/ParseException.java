@@ -10,7 +10,7 @@ public class ParseException extends Exception {
 	 */
 	private static final long serialVersionUID = -7099026388712137749L;
 
-	public ParseException(final String message) {
+	public ParseException(String message) {
 		super(message);
 	}
 

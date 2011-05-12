@@ -10,7 +10,7 @@ public class GEItemInfo {
 	/**
 	 * The price change in 30 days.
 	 */
-	private final String change30;
+	private String change30;
 
 	/**
 	 * The price change in 90 days.

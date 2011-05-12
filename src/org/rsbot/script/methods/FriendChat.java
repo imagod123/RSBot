@@ -1,9 +1,9 @@
 package org.rsbot.script.methods;
 
+import org.rsbot.script.wrappers.RSComponent;
+
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-
-import org.rsbot.script.wrappers.RSComponent;
 
 /**
  * Friend chat related operations.
@@ -18,6 +18,7 @@ public class FriendChat extends MethodProvider {
 
 	private static final Pattern HTML_TAG = Pattern.compile("(^[^<]+>|<[^>]+>|<[^>]+$)");
 	public static final int INTERFACE_FRIEND_CHAT = 1109;
+	public static final int INTERFACE_FRIEND_CHAT_CHECK = 16;
 	public static final int INTERFACE_FRIEND_CHAT_JOIN_BUTTON = 30;
 	public static final int INTERFACE_FRIEND_CHAT_CHANNEL_INFO = 1;
 	public static final int INTERFACE_FRIEND_CHAT_USERS_LIST = 5;
@@ -32,12 +33,9 @@ public class FriendChat extends MethodProvider {
 	 * @param channel The channel to join
 	 * @return <tt>true</tt> if successful; otherwise <tt>false</tt>
 	 */
-	public boolean join(final String channel) {
+	public boolean join(String channel) {
 		methods.game.openTab(Game.TAB_FRIENDS_CHAT);
 		if (isInChannel()) {
-			if (getChannelName() == channel) {
-				return true;
-			}
 			if (!leave()) {
 				return false;
 			}
@@ -45,8 +43,8 @@ public class FriendChat extends MethodProvider {
 		methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_JOIN_BUTTON).doClick();
 		sleep(random(500, 800));
 		if (methods.interfaces.get(INTERFACE_JOIN_FRIEND_CHAT).isValid()) {
-			final String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
-					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getComponent(0).getText();
+			String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
+					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
 			lastCachedChannel = lastChatCompText.substring(lastChatCompText.indexOf(": ") + 2);
 			methods.keyboard.sendText(channel, true);
 			sleep(random(1550, 1800));
@@ -67,13 +65,15 @@ public class FriendChat extends MethodProvider {
 	public boolean joinLastChannel() {
 		methods.game.openTab(Game.TAB_FRIENDS_CHAT);
 		if (isInChannel()) {
-			return true;
+			if (!leave()) {
+				return false;
+			}
 		}
 		methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_JOIN_BUTTON).doClick();
 		sleep(random(500, 800));
 		if (methods.interfaces.get(INTERFACE_JOIN_FRIEND_CHAT).isValid()) {
-			final String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
-					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getComponent(0).getText();
+			String lastChatCompText = methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
+					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).getText();
 			lastCachedChannel = lastChatCompText.substring(lastChatCompText.indexOf(": ") + 2);
 			methods.interfaces.getComponent(INTERFACE_JOIN_FRIEND_CHAT,
 					INTERFACE_JOIN_FRIEND_CHAT_LAST_CHANNEL).doClick();
@@ -113,7 +113,7 @@ public class FriendChat extends MethodProvider {
 			lastCachedChannel = getChannelName();
 		}
 		return methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_JOIN_BUTTON).containsAction(
-		"Leave chat");
+				"Leave chat");
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class FriendChat extends MethodProvider {
 	 * @return The users in the channel or null if unavailable
 	 */
 	public String[] getChannelUsers() {
-		final ArrayList<String> tempList = new ArrayList<String>();
+		ArrayList<String> tempList = new ArrayList<String>();
 		if (methods.game.getCurrentTab() != Game.TAB_FRIENDS_CHAT) {
 			methods.game.openTab(Game.TAB_FRIENDS_CHAT);
 		}
@@ -131,7 +131,7 @@ public class FriendChat extends MethodProvider {
 				lastCachedChannel = getChannelName();
 			}
 			if (methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_USERS_LIST) != null) {
-				for (final RSComponent comp : methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT,
+				for (RSComponent comp : methods.interfaces.getComponent(INTERFACE_FRIEND_CHAT,
 						INTERFACE_FRIEND_CHAT_USERS_LIST).getComponents()) {
 					if (comp.getText() != null) {
 						tempList.add(comp.getText().trim());
@@ -141,11 +141,12 @@ public class FriendChat extends MethodProvider {
 				}
 			}
 		}
-		{
-			final String[] temp = new String[tempList.size()];
+		if (tempList != null) {
+			String[] temp = new String[tempList.size()];
 			tempList.toArray(temp);
 			return temp;
 		}
+		return null;
 	}
 
 	/**
@@ -156,10 +157,10 @@ public class FriendChat extends MethodProvider {
 	public String getChannelName() {
 		try {
 			methods.game.openTab(Game.TAB_FRIENDS_CHAT);
-			final String name = stripFormatting(methods.interfaces.getComponent(
+			String name = stripFormatting(methods.interfaces.getComponent(
 					INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_CHANNEL_INFO).getText());
 			return name.substring(name.indexOf("Talking in: " + 12));
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -175,10 +176,10 @@ public class FriendChat extends MethodProvider {
 			if (getChannelName() != null) {
 				lastCachedChannel = getChannelName();
 			}
-			final String name = stripFormatting(methods.interfaces.getComponent(
+			String name = stripFormatting(methods.interfaces.getComponent(
 					INTERFACE_FRIEND_CHAT, INTERFACE_FRIEND_CHAT_CHANNEL_INFO).getText());
 			return name.substring(name.indexOf("Owner: ") + 7);
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -193,7 +194,7 @@ public class FriendChat extends MethodProvider {
 	 * @param input The string you want to parse.
 	 * @return The parsed {@code String}.
 	 */
-	private String stripFormatting(final String input) {
+	private String stripFormatting(String input) {
 		return HTML_TAG.matcher(input).replaceAll("");
 	}
 }

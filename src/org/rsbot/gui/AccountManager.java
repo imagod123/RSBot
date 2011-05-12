@@ -1,12 +1,15 @@
 package org.rsbot.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.rsbot.util.AccountStore;
+import org.rsbot.util.GlobalConfiguration;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -16,27 +19,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumnModel;
-
-import org.rsbot.service.ScriptDeliveryNetwork;
-import org.rsbot.util.AccountStore;
-import org.rsbot.util.GlobalConfiguration;
 
 /**
  * @author Tekk
@@ -50,24 +32,24 @@ public class AccountManager extends JDialog implements ActionListener {
 	private static final String FILE_NAME = GlobalConfiguration.Paths.getAccountsFile();
 
 	private static final String[] RANDOM_REWARDS = {"Cash", "Runes", "Coal", "Essence", "Ore", "Bars", "Gems", "Herbs",
-		"Seeds", "Charms", "Surprise", "Emote", "Costume", "Attack",
-		"Defence", "Strength", "Constitution", "Range", "Prayer", "Magic",
-		"Cooking", "Woodcutting", "Fletching", "Fishing", "Firemaking",
-		"Crafting", "Smithing", "Mining", "Herblore", "Agility", "Thieving",
-		"Slayer", "Farming", "Runecrafting", "Hunter", "Construction",
-		"Summoning", "Dungeoneering"};
+			"Seeds", "Charms", "Surprise", "Emote", "Costume", "Attack",
+			"Defence", "Strength", "Constitution", "Range", "Prayer", "Magic",
+			"Cooking", "Woodcutting", "Fletching", "Fishing", "Firemaking",
+			"Crafting", "Smithing", "Mining", "Herblore", "Agility", "Thieving",
+			"Slayer", "Farming", "Runecrafting", "Hunter", "Construction",
+			"Summoning", "Dungeoneering"};
 
 	private static final String[] VALID_KEYS = {"pin", "reward", "member", "take_breaks"};
 
 	private static final Logger log = Logger.getLogger(AccountManager.class.getName());
 
-	private static final AccountStore accountStore = new AccountStore(new File(FILE_NAME));
+	private static AccountStore accountStore = new AccountStore(new File(FILE_NAME));
 
 	static {
-		accountStore.setPassword(ScriptDeliveryNetwork.getInstance().getKey());
+		accountStore.setPassword(BotGUI.getServiceKey().key);
 		try {
 			accountStore.load();
-		} catch (final IOException ignored) {
+		} catch (IOException ignored) {
 		}
 	}
 
@@ -85,12 +67,12 @@ public class AccountManager extends JDialog implements ActionListener {
 
 	private static class PasswordCellRenderer extends DefaultTableCellRenderer {
 		@Override
-		protected void setValue(final Object value) {
+		protected void setValue(Object value) {
 			if (value == null) {
 				setText("<none>");
 			} else {
-				final String str = value.toString();
-				final StringBuilder b = new StringBuilder();
+				String str = value.toString();
+				StringBuilder b = new StringBuilder();
 				for (int i = 0; i < str.length(); ++i) {
 					b.append("*");
 				}
@@ -100,9 +82,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	private class TableSelectionListener implements ListSelectionListener {
-		@Override
-		public void valueChanged(final ListSelectionEvent evt) {
-			final int row = table.getSelectedRow();
+		public void valueChanged(ListSelectionEvent evt) {
+			int row = table.getSelectedRow();
 			if (!evt.getValueIsAdjusting()) {
 				removeButton.setEnabled(row >= 0 && row < table.getRowCount());
 			}
@@ -110,26 +91,23 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	private class AccountTableModel extends AbstractTableModel {
-		@Override
 		public int getRowCount() {
 			return accountStore.list().size();
 		}
 
-		@Override
 		public int getColumnCount() {
 			return VALID_KEYS.length + 2;
 		}
 
-		@Override
-		public Object getValueAt(final int row, final int column) {
+		public Object getValueAt(int row, int column) {
 			if (column == 0) {
 				return userForRow(row);
 			} else if (column == 1) {
 				return accountStore.get(userForRow(row)).getPassword();
 			} else {
-				final AccountStore.Account acc = accountStore.get(userForRow(row));
+				AccountStore.Account acc = accountStore.get(userForRow(row));
 				if (acc != null) {
-					final String str = acc.getAttribute(VALID_KEYS[column - 2]);
+					String str = acc.getAttribute(VALID_KEYS[column - 2]);
 					if (str == null || str.isEmpty()) {
 						return null;
 					}
@@ -146,14 +124,14 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public String getColumnName(final int column) {
+		public String getColumnName(int column) {
 			if (column == 0) {
 				return "Username";
 			} else if (column == 1) {
 				return "Password";
 			}
-			final String str = VALID_KEYS[column - 2];
-			final StringBuilder b = new StringBuilder();
+			String str = VALID_KEYS[column - 2];
+			StringBuilder b = new StringBuilder();
 			boolean space = true;
 			for (char c : str.toCharArray()) {
 				if (c == '_') {
@@ -166,7 +144,7 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public Class<?> getColumnClass(final int column) {
+		public Class<?> getColumnClass(int column) {
 			if (getColumnName(column).equals("Member")) {
 				return Boolean.class;
 			}
@@ -177,13 +155,13 @@ public class AccountManager extends JDialog implements ActionListener {
 		}
 
 		@Override
-		public boolean isCellEditable(final int row, final int column) {
+		public boolean isCellEditable(int row, int column) {
 			return column > 0;
 		}
 
 		@Override
-		public void setValueAt(final Object value, final int row, final int column) {
-			final AccountStore.Account acc = accountStore.get(userForRow(row));
+		public void setValueAt(Object value, int row, int column) {
+			AccountStore.Account acc = accountStore.get(userForRow(row));
 			if (acc == null) {
 				return;
 			}
@@ -195,8 +173,8 @@ public class AccountManager extends JDialog implements ActionListener {
 			fireTableCellUpdated(row, column);
 		}
 
-		public String userForRow(final int row) {
-			final Iterator<AccountStore.Account> it = accountStore.list().iterator();
+		public String userForRow(int row) {
+			Iterator<AccountStore.Account> it = accountStore.list().iterator();
 			for (int k = 0; it.hasNext() && k < row; k++) {
 				it.next();
 			}
@@ -214,30 +192,29 @@ public class AccountManager extends JDialog implements ActionListener {
 		super(Frame.getFrames()[0], "Account Manager", true);
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
+	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
-			final String label = ((JButton) e.getSource()).getText();
+			String label = ((JButton) e.getSource()).getText();
 			if (label.equals("Done")) {
 				try {
 					accountStore.save();
-				} catch (final IOException ioe) {
-					ioe.printStackTrace();
-					log.info("Failed to save accounts...  Please report this.");
+				} catch (IOException ioe) {
+					log.info("Failed to save accounts... FUCK!");
 				}
 				dispose();
 			} else if (label.equals("Add")) {
-				final String str = JOptionPane.showInputDialog(getParent(), "Enter the account username.", "New Account", JOptionPane.QUESTION_MESSAGE);
+				String str = JOptionPane.showInputDialog(getParent(), "Enter the account username.", "New Account",
+						JOptionPane.QUESTION_MESSAGE);
 				if (str == null || str.isEmpty()) {
 					return;
 				}
 				accountStore.add(new AccountStore.Account(str));
 				accountStore.get(str).setAttribute("reward", RANDOM_REWARDS[0]);
-				final int row = table.getRowCount();
+				int row = table.getRowCount();
 				((AccountTableModel) table.getModel()).fireTableRowsInserted(row, row);
 			} else if (label.equals("Remove")) {
-				final int row = table.getSelectedRow();
-				final String user = ((AccountTableModel) table.getModel()).userForRow(row);
+				int row = table.getSelectedRow();
+				String user = ((AccountTableModel) table.getModel()).userForRow(row);
 				if (user != null) {
 					accountStore.remove(user);
 					((AccountTableModel) table.getModel()).fireTableRowsDeleted(row, row);
@@ -250,18 +227,18 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * Creates and displays the main GUI This GUI has the list and the main	 * buttons
 	 */
 	public void showGUI() {
-		final JScrollPane scrollPane = new JScrollPane();
+		JScrollPane scrollPane = new JScrollPane();
 		table = new JTable(new AccountTableModel());
-		final JPanel bar = new JPanel();
+		JPanel bar = new JPanel();
 		removeButton = new JButton();
-		final JButton newButton = new JButton();
-		final JButton doneButton = new JButton();
+		JButton newButton = new JButton();
+		JButton doneButton = new JButton();
 		setTitle("Account Manager");
-		final Container contentPane = getContentPane();
+		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout(5, 5));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new TableSelectionListener());
-		final TableColumnModel cm = table.getColumnModel();
+		TableColumnModel cm = table.getColumnModel();
 		cm.getColumn(cm.getColumnIndex("Password")).setCellRenderer(new PasswordCellRenderer());
 		cm.getColumn(cm.getColumnIndex("Password")).setCellEditor(new PasswordCellEditor());
 		cm.getColumn(cm.getColumnIndex("Pin")).setCellRenderer(new PasswordCellRenderer());
@@ -270,21 +247,27 @@ public class AccountManager extends JDialog implements ActionListener {
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setViewportView(table);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
-		final GridBagLayout gbl = new GridBagLayout();
+		GridBagLayout gbl = new GridBagLayout();
 		bar.setLayout(gbl);
 		gbl.rowHeights = new int[]{0, 0};
 		gbl.rowWeights = new double[]{0.0, 1.0E-4};
 		newButton.setText("Add");
-		bar.add(newButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 5, 5), 0, 0));
+		bar.add(newButton,
+				new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+						new Insets(0, 0, 5, 5), 0, 0));
 		removeButton.setText("Remove");
-		bar.add(removeButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 5, 5), 0, 0));
+		bar.add(removeButton,
+				new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+						new Insets(0, 0, 5, 5), 0, 0));
 		doneButton.setText("Done");
-		bar.add(doneButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 5, 0), 0, 0));
+		bar.add(doneButton,
+				new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+						new Insets(0, 0, 5, 0), 0, 0));
 		newButton.addActionListener(this);
 		doneButton.addActionListener(this);
 		removeButton.addActionListener(this);
 		contentPane.add(bar, BorderLayout.SOUTH);
-		final int row = table.getSelectedRow();
+		int row = table.getSelectedRow();
 		removeButton.setEnabled(row >= 0 && row < table.getRowCount());
 		table.clearSelection();
 		doneButton.requestFocus();
@@ -296,20 +279,19 @@ public class AccountManager extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Access the list of names for loaded accounts
-	 *
-	 * @return Array of the names.
+	 * Access the list of names for loaded accounts	 *	 * @return Array of the names
 	 */
 	public static String[] getAccountNames() {
 		try {
-			final List<String> theList = new ArrayList<String>();
-			final Collection<AccountStore.Account> accountCollection = AccountManager.accountStore.list();
-			for (final AccountStore.Account anAccountCollection : accountCollection) {
-				final AccountStore.Account account = anAccountCollection;
+			List<String> theList = new ArrayList<String>();
+			Collection<AccountStore.Account> accountCollection = AccountManager.accountStore.list();
+			Iterator<AccountStore.Account> accountIterator = accountCollection.iterator();
+			while (accountIterator.hasNext()) {
+				AccountStore.Account account = accountIterator.next();
 				theList.add(account.getUsername());
 			}
 			return theList.toArray(new String[theList.size()]);
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -326,7 +308,7 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return Password or an empty string
 	 */
 	public static String getPassword(final String name) {
-		final AccountStore.Account values = AccountManager.accountStore.get(name);
+		AccountStore.Account values = AccountManager.accountStore.get(name);
 		String pass = values.getPassword();
 		if (pass == null) {
 			pass = "";
@@ -341,7 +323,7 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return Pin or an empty string
 	 */
 	public static String getPin(final String name) {
-		final AccountStore.Account values = AccountManager.accountStore.get(name);
+		AccountStore.Account values = AccountManager.accountStore.get(name);
 		String pin = values.getAttribute("pin");
 		if (pin == null) {
 			pin = "-1";
@@ -356,8 +338,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return The desired reward
 	 */
 	public static String getReward(final String name) {
-		final AccountStore.Account values = AccountManager.accountStore.get(name);
-		final String reward = values.getAttribute("reward");
+		AccountStore.Account values = AccountManager.accountStore.get(name);
+		String reward = values.getAttribute("reward");
 		if (reward == null) {
 			return "Cash";
 		}
@@ -371,8 +353,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return true if the account is member, false if it isn't
 	 */
 	public static boolean isMember(final String name) {
-		final AccountStore.Account values = AccountManager.accountStore.get(name);
-		final String member = values.getAttribute("member");
+		AccountStore.Account values = AccountManager.accountStore.get(name);
+		String member = values.getAttribute("member");
 		return member != null && member.equalsIgnoreCase("true");
 	}
 
@@ -383,8 +365,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @return true if the account is member, false if it isn't
 	 */
 	public static boolean isTakingBreaks(final String name) {
-		final AccountStore.Account values = AccountManager.accountStore.get(name);
-		final String member = values.getAttribute("take_breaks");
+		AccountStore.Account values = AccountManager.accountStore.get(name);
+		String member = values.getAttribute("take_breaks");
 		return member != null && member.equalsIgnoreCase("true");
 	}
 
@@ -394,9 +376,8 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @param key The key
 	 * @return true if the object is supported, false if it isn't
 	 */
-	@SuppressWarnings("unused")
 	private static boolean isValidKey(final String key) {
-		for (final String check : VALID_KEYS) {
+		for (String check : VALID_KEYS) {
 			if (key.equalsIgnoreCase(check)) {
 				return true;
 			}
@@ -410,7 +391,6 @@ public class AccountManager extends JDialog implements ActionListener {
 	 * @param pin The pin
 	 * @return true if the pin is valid, false if it isn't
 	 */
-	@SuppressWarnings("unused")
 	private static boolean isValidPin(final String pin) {
 		if (pin.length() == 4) {
 			for (int i = 0; i < pin.length(); i++) {

@@ -1,12 +1,5 @@
 package org.rsbot.script.methods;
 
-import java.awt.Graphics;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.regex.Pattern;
-
 import org.rsbot.client.MenuGroupNode;
 import org.rsbot.client.MenuItemNode;
 import org.rsbot.event.EventMulticaster;
@@ -16,13 +9,19 @@ import org.rsbot.script.internal.wrappers.Queue;
 import org.rsbot.script.wrappers.RSItem;
 import org.rsbot.script.wrappers.RSItemDef;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.regex.Pattern;
+
 /**
  * Context menu related operations.
  */
 public class Menu extends MethodProvider {
 
 	private static final Pattern HTML_TAG = Pattern
-	.compile("(^[^<]+>|<[^>]+>|<[^>]+$)");
+			.compile("(^[^<]+>|<[^>]+>|<[^>]+$)");
 
 	private final Object menuCacheLock = new Object();
 
@@ -43,21 +42,9 @@ public class Menu extends MethodProvider {
 	 * @return <tt>true</tt> if the menu item was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
-	public boolean doAction(final String action) {
-		return doAction(action, null);
-	}
-
-	/**
-	 * Clicks the menu option. Will left-click if the menu item is the first,
-	 * otherwise open menu and click the option.
-	 *
-	 * @param action The action (or action substring) to click.
-	 * @param option The option (or option substring) of the action to click.
-	 * @return <tt>true</tt> if the menu item was clicked; otherwise
-	 *         <tt>false</tt>.
-	 */
-	public boolean doAction(final String action, final String option) {
-		final int idx = getIndex(action, option);
+	public boolean doAction(String action) {
+		action = action.toLowerCase();
+		int idx = getIndex(action);
 		if (!isOpen()) {
 			if (idx == -1) {
 				return false;
@@ -90,18 +77,6 @@ public class Menu extends MethodProvider {
 	}
 
 	/**
-	 * Checks whether or not a given action with given option is present
-	 * in the menu.
-	 *
-	 * @param action The action or action substring.
-	 * @param option The option or option substring.
-	 * @return <tt>true</tt> if present, otherwise <tt>false</tt>.
-	 */
-	public boolean contains(final String action, final String option) {
-		return getIndex(action, option) != -1;
-	}
-
-	/**
 	 * Determines if the item contains the desired action.
 	 *
 	 * @param item   The item to check.
@@ -114,9 +89,9 @@ public class Menu extends MethodProvider {
 		if (item == null) {
 			return false;
 		}
-		final RSItemDef itemDef = item.getDefinition();
+		RSItemDef itemDef = item.getDefinition();
 		if (itemDef != null) {
-			for (final String a : itemDef.getActions()) {
+			for (String a : itemDef.getActions()) {
 				if (a.equalsIgnoreCase(action)) {
 					return true;
 				}
@@ -135,21 +110,21 @@ public class Menu extends MethodProvider {
 		if (!isOpen()) {
 			return false;
 		}
-		final String[] items = getItems();
+		String[] items = getItems();
 		if (items.length <= i) {
 			return false;
 		}
 		if (isCollapsed()) {
-			final Queue<MenuGroupNode> groups = new Queue<MenuGroupNode>(
+			Queue<MenuGroupNode> groups = new Queue<MenuGroupNode>(
 					methods.client.getCollapsedMenuItems());
 			int idx = 0, mainIdx = 0;
 			for (MenuGroupNode g = groups.getHead(); g != null; g = groups
-			.getNext(), ++mainIdx) {
-				final Queue<MenuItemNode> subItems = new Queue<MenuItemNode>(
+					.getNext(), ++mainIdx) {
+				Queue<MenuItemNode> subItems = new Queue<MenuItemNode>(
 						g.getItems());
 				int subIdx = 0;
 				for (MenuItemNode item = subItems.getHead(); item != null; item = subItems
-				.getNext(), ++subIdx) {
+						.getNext(), ++subIdx) {
 					if (idx++ == i) {
 						if (subItems.size() == 1) {
 							return clickMain(items, mainIdx);
@@ -166,9 +141,9 @@ public class Menu extends MethodProvider {
 	}
 
 	private boolean clickMain(final String[] items, final int i) {
-		final Point menu = getLocation();
-		final int xOff = random(4, items[i].length() * 4);
-		final int yOff = 21 + 16 * i + random(3, 12);
+		Point menu = getLocation();
+		int xOff = random(4, items[i].length() * 4);
+		int yOff = 21 + 16 * i + random(3, 12);
 		methods.mouse.move(menu.x + xOff, menu.y + yOff, 2, 2);
 		if (isOpen()) {
 			methods.mouse.click(true);
@@ -178,15 +153,15 @@ public class Menu extends MethodProvider {
 	}
 
 	private boolean clickSub(final String[] items, final int mIdx,
-			final int sIdx) {
-		final Point menuLoc = getLocation();
+	                         final int sIdx) {
+		Point menuLoc = getLocation();
 		int x = random(4, items[mIdx].length() * 4);
 		int y = 21 + 16 * mIdx + random(3, 12);
 		methods.mouse.move(menuLoc.x + x, menuLoc.y + y, 2, 2);
 		sleep(random(125, 150));
 
 		if (isOpen()) {
-			final Point subLoc = getSubMenuLocation();
+			Point subLoc = getSubMenuLocation();
 			x = random(4, items[sIdx].length() * 4);
 			methods.mouse.move(subLoc.x + x, methods.mouse.getLocation().y, 2,
 					0);
@@ -224,36 +199,9 @@ public class Menu extends MethodProvider {
 	 */
 	public int getIndex(String action) {
 		action = action.toLowerCase();
-		final String[] items = getItems();
+		String[] items = getItems();
 		for (int i = 0; i < items.length; i++) {
 			if (items[i].toLowerCase().contains(action)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Returns the index in the menu for a given action with a given option.
-	 * Starts at 0.
-	 *
-	 * @param action The action of the menu entry of which you want the index.
-	 * @param option The option of the menu entry of which you want the index.
-	 *               If option is null, operates like getIndex(String action).
-	 * @return The index of the given option in the context menu; otherwise -1.
-	 */
-	public int getIndex(String action, String option) {
-		if (option == null) {
-			return getIndex(action);
-		}
-		action = action.toLowerCase();
-		option = option.toLowerCase();
-		final String[] actions = getActions();
-		final String[] options = getOptions();
-		/* Throw exception if lenghts unequal? */
-		for (int i = 0; i < Math.min(actions.length, options.length); i++) {
-			if (actions[i].toLowerCase().contains(action) &&
-					options[i].toLowerCase().contains(option)) {
 				return i;
 			}
 		}
@@ -274,14 +222,14 @@ public class Menu extends MethodProvider {
 			actions = menuActionsCache;
 		}
 
-		final ArrayList<String> output = new ArrayList<String>();
+		ArrayList<String> output = new ArrayList<String>();
 
-		final int len = Math.min(options.length, actions.length);
+		int len = Math.min(options.length, actions.length);
 		for (int i = 0; i < len; i++) {
-			final String option = options[i];
-			final String action = actions[i];
+			String option = options[i];
+			String action = actions[i];
 			if (option != null && action != null) {
-				final String text = action + " " + option;
+				String text = action + " " + option;
 				output.add(text.trim());
 			}
 		}
@@ -307,37 +255,37 @@ public class Menu extends MethodProvider {
 	}
 
 	private String[] getMenuItemPart(final boolean firstPart) {
-		final LinkedList<String> itemsList = new LinkedList<String>();
+		LinkedList<String> itemsList = new LinkedList<String>();
 		if (isCollapsed()) {
-			final Queue<MenuGroupNode> menu = new Queue<MenuGroupNode>(
+			Queue<MenuGroupNode> menu = new Queue<MenuGroupNode>(
 					methods.client.getCollapsedMenuItems());
 			for (MenuGroupNode mgn = menu.getHead(); mgn != null; mgn = menu
-			.getNext()) {
-				final Queue<MenuItemNode> submenu = new Queue<MenuItemNode>(
+					.getNext()) {
+				Queue<MenuItemNode> submenu = new Queue<MenuItemNode>(
 						mgn.getItems());
 				for (MenuItemNode min = submenu.getHead(); min != null; min = submenu
-				.getNext()) {
+						.getNext()) {
 					itemsList
-					.add(firstPart ? min.getAction() : min.getOption());
+							.add(firstPart ? min.getAction() : min.getOption());
 				}
 			}
 		} else {
-			final Deque<MenuItemNode> menu = new Deque<MenuItemNode>(
+			Deque<MenuItemNode> menu = new Deque<MenuItemNode>(
 					methods.client.getMenuItems());
 			for (MenuItemNode min = menu.getHead(); min != null; min = menu
-			.getNext()) {
+					.getNext()) {
 				itemsList.add(firstPart ? min.getAction() : min.getOption());
 			}
 		}
-		final String[] items = itemsList.toArray(new String[itemsList.size()]);
-		final LinkedList<String> output = new LinkedList<String>();
+		String[] items = itemsList.toArray(new String[itemsList.size()]);
+		LinkedList<String> output = new LinkedList<String>();
 		if (isCollapsed()) {
-			for (final String item : items) {
+			for (String item : items) {
 				output.add(item == null ? "" : stripFormatting(item));
 			}
 		} else {
 			for (int i = items.length - 1; i >= 0; i--) {
-				final String item = items[i];
+				String item = items[i];
 				output.add(item == null ? "" : stripFormatting(item));
 			}
 		}
@@ -405,8 +353,7 @@ public class Menu extends MethodProvider {
 		menuListenerStarted = true;
 		methods.bot.getEventManager().addListener(new PaintListener() {
 
-			@Override
-			public void onRepaint(final Graphics g) {
+			public void onRepaint(Graphics g) {
 				synchronized (menuCacheLock) {
 					menuOptionsCache = getOptions();
 					menuActionsCache = getActions();
@@ -421,7 +368,7 @@ public class Menu extends MethodProvider {
 	 * @param input The string you want to parse.
 	 * @return The parsed {@code String}.
 	 */
-	private String stripFormatting(final String input) {
+	private String stripFormatting(String input) {
 		return HTML_TAG.matcher(input).replaceAll("");
 	}
 }

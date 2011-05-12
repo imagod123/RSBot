@@ -1,18 +1,18 @@
 package org.rsbot.script.methods;
 
-import java.awt.event.KeyEvent;
-
 import org.rsbot.script.util.Timer;
 import org.rsbot.script.wrappers.RSCharacter;
 import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSTile;
+
+import java.awt.event.KeyEvent;
 
 /**
  * Camera related operations.
  */
 public class Camera extends MethodProvider {
 
-	Camera(final MethodContext ctx) {
+	Camera(MethodContext ctx) {
 		super(ctx);
 	}
 
@@ -22,9 +22,8 @@ public class Camera extends MethodProvider {
 	 * @param c The RSCharacter to turn to.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToCharacter(final RSCharacter c) {
-		final int angle = getCharacterAngle(c);
+	public void turnToCharacter(RSCharacter c) {
+		int angle = getCharacterAngle(c);
 		setAngle(angle);
 	}
 
@@ -34,7 +33,7 @@ public class Camera extends MethodProvider {
 	 * @param c The RSCharacter to turn to.
 	 */
 	public void turnTo(final RSCharacter c) {
-		final int angle = getCharacterAngle(c);
+		int angle = getCharacterAngle(c);
 		setAngle(angle);
 	}
 
@@ -45,8 +44,7 @@ public class Camera extends MethodProvider {
 	 * @param dev The maximum difference in the angle.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToCharacter(final RSCharacter c, final int dev) {
+	public void turnToCharacter(RSCharacter c, int dev) {
 		int angle = getCharacterAngle(c);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
@@ -70,9 +68,8 @@ public class Camera extends MethodProvider {
 	 * @param o The RSObject to turn to.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToObject(final RSObject o) {
-		final int angle = getObjectAngle(o);
+	public void turnToObject(RSObject o) {
+		int angle = getObjectAngle(o);
 		setAngle(angle);
 	}
 
@@ -82,7 +79,7 @@ public class Camera extends MethodProvider {
 	 * @param o The RSObject to turn to.
 	 */
 	public void turnTo(final RSObject o) {
-		final int angle = getObjectAngle(o);
+		int angle = getObjectAngle(o);
 		setAngle(angle);
 	}
 
@@ -93,8 +90,7 @@ public class Camera extends MethodProvider {
 	 * @param dev The maximum difference in the turn angle.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToObject(final RSObject o, final int dev) {
+	public void turnToObject(RSObject o, int dev) {
 		int angle = getObjectAngle(o);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
@@ -118,9 +114,8 @@ public class Camera extends MethodProvider {
 	 * @param tile Tile to turn to.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToTile(final RSTile tile) {
-		final int angle = getTileAngle(tile);
+	public void turnToTile(RSTile tile) {
+		int angle = getTileAngle(tile);
 		setAngle(angle);
 	}
 
@@ -130,7 +125,7 @@ public class Camera extends MethodProvider {
 	 * @param tile Tile to turn to.
 	 */
 	public void turnTo(final RSTile tile) {
-		final int angle = getTileAngle(tile);
+		int angle = getTileAngle(tile);
 		setAngle(angle);
 	}
 
@@ -141,8 +136,7 @@ public class Camera extends MethodProvider {
 	 * @param dev  Maximum deviation from the angle to the tile.
 	 * @deprecated
 	 */
-	@Deprecated
-	public void turnToTile(final RSTile tile, final int dev) {
+	public void turnToTile(RSTile tile, int dev) {
 		int angle = getTileAngle(tile);
 		angle = random(angle - dev, angle + dev + 1);
 		setAngle(angle);
@@ -166,7 +160,7 @@ public class Camera extends MethodProvider {
 	 * @param up True to go up. False to go down.
 	 * @return <tt>true</tt> if the altitude was changed.
 	 */
-	public boolean setPitch(final boolean up) {
+	public boolean setPitch(boolean up) {
 		if (up) {
 			return setPitch(100);
 		} else {
@@ -195,7 +189,7 @@ public class Camera extends MethodProvider {
 	 * @param percent The percentage of the maximum pitch to set the camera to.
 	 * @return true if the camera was successfully moved; otherwise false.
 	 */
-	public boolean setPitch(final int percent) {
+	public boolean setPitch(int percent) {
 		int curAlt = getPitch();
 		int lastAlt = 0;
 		if (curAlt == percent) {
@@ -203,11 +197,13 @@ public class Camera extends MethodProvider {
 		} else if (curAlt < percent) {
 			methods.inputManager.pressKey((char) KeyEvent.VK_UP);
 			long start = System.currentTimeMillis();
-			while (curAlt < percent && System.currentTimeMillis() - start < random(50, 100)) {
+			while (curAlt < percent
+					&& System.currentTimeMillis() - start < random(50, 100)) {
 				if (lastAlt != curAlt) {
 					start = System.currentTimeMillis();
 				}
 				lastAlt = curAlt;
+
 				sleep(random(5, 10));
 				curAlt = getPitch();
 			}
@@ -216,7 +212,8 @@ public class Camera extends MethodProvider {
 		} else {
 			methods.inputManager.pressKey((char) KeyEvent.VK_DOWN);
 			long start = System.currentTimeMillis();
-			while (curAlt > percent && System.currentTimeMillis() - start < random(50, 100)) {
+			while (curAlt > percent
+					&& System.currentTimeMillis() - start < random(50, 100)) {
 				if (lastAlt != curAlt) {
 					start = System.currentTimeMillis();
 				}
@@ -234,18 +231,20 @@ public class Camera extends MethodProvider {
 	 *
 	 * @param timeOut The maximum time in milliseconds to move the camera for.
 	 */
-	public void moveRandomly(final int timeOut) {
-		final Timer timeToHold = new Timer(timeOut);
-		final int lowestCamAltPossible = random(75, 100);
-		final int vertical = random(0, 20) < 15 ? KeyEvent.VK_UP : KeyEvent.VK_DOWN;
-		final int horizontal = random(0, 20) < 5 ? KeyEvent.VK_LEFT : KeyEvent.VK_RIGHT;
+	public void moveRandomly(int timeOut) {
+		Timer timeToHold = new Timer(timeOut);
+		int lowestCamAltPossible = random(75, 100);
+		int vertical = random(0, 20) < 15 ? KeyEvent.VK_UP : KeyEvent.VK_DOWN;
+		int horizontal = random(0, 20) < 5 ? KeyEvent.VK_LEFT
+				: KeyEvent.VK_RIGHT;
 		if (random(0, 10) < 8) {
 			methods.inputManager.pressKey((char) vertical);
 		}
 		if (random(0, 10) < 8) {
 			methods.inputManager.pressKey((char) horizontal);
 		}
-		while (timeToHold.isRunning() && methods.client.getCamPosZ() >= lowestCamAltPossible) {
+		while (timeToHold.isRunning()
+				&& methods.client.getCamPosZ() >= lowestCamAltPossible) {
 			sleep(10);
 		}
 		methods.inputManager.releaseKey((char) vertical);
@@ -257,7 +256,7 @@ public class Camera extends MethodProvider {
 	 *
 	 * @param degrees The angle to rotate to.
 	 */
-	public void setAngle(final int degrees) {
+	public void setAngle(int degrees) {
 		if (getAngleTo(degrees) > 5) {
 			methods.inputManager.pressKey((char) KeyEvent.VK_LEFT);
 			while (getAngleTo(degrees) > 5) {
@@ -279,23 +278,23 @@ public class Camera extends MethodProvider {
 	 * @param direction The char direction to turn the map. char options are w,s,e,n
 	 *                  and defaults to north if character is unrecognized.
 	 */
-	public void setCompass(final char direction) {
+	public void setCompass(char direction) {
 		switch (direction) {
-		case 'n':
-			setAngle(359);
-			break;
-		case 'w':
-			setAngle(89);
-			break;
-		case 's':
-			setAngle(179);
-			break;
-		case 'e':
-			setAngle(269);
-			break;
-		default:
-			setAngle(359);
-			break;
+			case 'n':
+				setAngle(359);
+				break;
+			case 'w':
+				setAngle(89);
+				break;
+			case 's':
+				setAngle(179);
+				break;
+			case 'e':
+				setAngle(269);
+				break;
+			default:
+				setAngle(359);
+				break;
 		}
 	}
 
@@ -303,7 +302,8 @@ public class Camera extends MethodProvider {
 	 * Uses the compass component to set the camera to face north.
 	 */
 	public void setNorth() {
-		methods.interfaces.getComponent(methods.gui.getCompass().getID()).doClick();
+		methods.interfaces.getComponent(methods.gui.getCompass().getID())
+				.doClick();
 	}
 
 	/**
@@ -313,7 +313,7 @@ public class Camera extends MethodProvider {
 	 * @param n the RSCharacter
 	 * @return The angle
 	 */
-	public int getCharacterAngle(final RSCharacter n) {
+	public int getCharacterAngle(RSCharacter n) {
 		return getTileAngle(n.getLocation());
 	}
 
@@ -324,7 +324,7 @@ public class Camera extends MethodProvider {
 	 * @param o The RSObject
 	 * @return The angle
 	 */
-	public int getObjectAngle(final RSObject o) {
+	public int getObjectAngle(RSObject o) {
 		return getTileAngle(o.getLocation());
 	}
 
@@ -335,8 +335,8 @@ public class Camera extends MethodProvider {
 	 * @param t The target tile
 	 * @return The angle in degrees
 	 */
-	public int getTileAngle(final RSTile t) {
-		final int a = (methods.calc.angleToTile(t) - 90) % 360;
+	public int getTileAngle(RSTile t) {
+		int a = (methods.calc.angleToTile(t) - 90) % 360;
 		return a < 0 ? a + 360 : a;
 	}
 
@@ -347,7 +347,7 @@ public class Camera extends MethodProvider {
 	 * @param degrees The target angle.
 	 * @return The angle between the who angles in degrees.
 	 */
-	public int getAngleTo(final int degrees) {
+	public int getAngleTo(int degrees) {
 		int ca = getAngle();
 		if (ca < degrees) {
 			ca += 360;

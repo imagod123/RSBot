@@ -1,14 +1,10 @@
 package org.rsbot.client.input;
 
-import java.awt.Component;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.*;
+import java.awt.event.*;
 
 public abstract class Mouse extends Focus implements MouseListener,
-MouseMotionListener, MouseWheelListener {
+		MouseMotionListener, MouseWheelListener {
 
 	private int clientX;
 	private int clientY;
@@ -64,24 +60,21 @@ MouseMotionListener, MouseWheelListener {
 		return clientPresent;
 	}
 
-	@Override
-	public final void mouseClicked(final MouseEvent e) {
+	public final void mouseClicked(MouseEvent e) {
 		clientX = e.getX();
 		clientY = e.getY();
 		_mouseClicked(e);
 		e.consume();
 	}
 
-	@Override
-	public final void mouseDragged(final MouseEvent e) {
+	public final void mouseDragged(MouseEvent e) {
 		clientX = e.getX();
 		clientY = e.getY();
 		_mouseDragged(e);
 		e.consume();
 	}
 
-	@Override
-	public final void mouseEntered(final MouseEvent e) {
+	public final void mouseEntered(MouseEvent e) {
 		clientPresent = true;
 		clientX = e.getX();
 		clientY = e.getY();
@@ -89,8 +82,7 @@ MouseMotionListener, MouseWheelListener {
 		e.consume();
 	}
 
-	@Override
-	public final void mouseExited(final MouseEvent e) {
+	public final void mouseExited(MouseEvent e) {
 		clientPresent = false;
 		clientX = e.getX();
 		clientY = e.getY();
@@ -98,16 +90,14 @@ MouseMotionListener, MouseWheelListener {
 		e.consume();
 	}
 
-	@Override
-	public final void mouseMoved(final MouseEvent e) {
+	public final void mouseMoved(MouseEvent e) {
 		clientX = e.getX();
 		clientY = e.getY();
 		_mouseMoved(e);
 		e.consume();
 	}
 
-	@Override
-	public final void mousePressed(final MouseEvent e) {
+	public final void mousePressed(MouseEvent e) {
 		clientPressed = true;
 		clientX = e.getX();
 		clientY = e.getY();
@@ -115,8 +105,7 @@ MouseMotionListener, MouseWheelListener {
 		e.consume();
 	}
 
-	@Override
-	public final void mouseReleased(final MouseEvent e) {
+	public final void mouseReleased(MouseEvent e) {
 		clientX = e.getX();
 		clientY = e.getY();
 		clientPressX = e.getX();
@@ -128,19 +117,18 @@ MouseMotionListener, MouseWheelListener {
 		e.consume();
 	}
 
-	@Override
-	public void mouseWheelMoved(final MouseWheelEvent e) {
+	public void mouseWheelMoved(MouseWheelEvent e) {
 		try {
 			_mouseWheelMoved(e);
-		} catch (final AbstractMethodError ame) {
+		} catch (AbstractMethodError ame) {
 			// it might not be implemented!
 		}
 		e.consume();
 	}
 
-	public final void sendEvent(final MouseEvent e) {
-		clientX = e.getX();
-		clientY = e.getY();
+	public final void sendEvent(MouseEvent e) {
+		this.clientX = e.getX();
+		this.clientY = e.getY();
 		try {
 			if (e.getID() == MouseEvent.MOUSE_CLICKED) {
 				_mouseClicked(e);
@@ -166,13 +154,13 @@ MouseMotionListener, MouseWheelListener {
 			} else if (e.getID() == MouseEvent.MOUSE_WHEEL) {
 				try {
 					_mouseWheelMoved((MouseWheelEvent) e);
-				} catch (final AbstractMethodError ignored) {
+				} catch (AbstractMethodError ignored) {
 					// it might not be implemented!
 				}
 			} else {
 				throw new InternalError(e.toString());
 			}
-		} catch (final NullPointerException ignored) {
+		} catch (NullPointerException ignored) {
 			// client may throw NPE when a listener
 			// is being re-instantiated.
 		}

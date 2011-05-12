@@ -11,8 +11,8 @@ import org.rsbot.script.methods.MethodProvider;
  */
 public class RSItem extends MethodProvider {
 
-	private final int id;
-	private final int stack;
+	private int id;
+	private int stack;
 	private RSComponent component;
 
 	public RSItem(final MethodContext ctx, final int id, final int stack) {
@@ -41,13 +41,13 @@ public class RSItem extends MethodProvider {
 	 */
 	public RSItemDef getDefinition() {
 		try {
-			final org.rsbot.client.Node ref = methods.nodes.lookup(methods.client.getRSItemDefLoader(), id);
+			org.rsbot.client.Node ref = methods.nodes.lookup(methods.client.getRSItemDefLoader(), id);
 
 			if (ref != null) {
 				if (ref instanceof HardReference) {
-					return new RSItemDef((org.rsbot.client.RSItemDef) ((HardReference) ref).get());
+					return new RSItemDef((org.rsbot.client.RSItemDef) (((HardReference) ref).get()));
 				} else if (ref instanceof SoftReference) {
-					final Object def = ((SoftReference) ref).getReference().get();
+					Object def = ((SoftReference) ref).getReference().get();
 
 					if (def != null) {
 						return new RSItemDef((org.rsbot.client.RSItemDef) def);
@@ -114,11 +114,11 @@ public class RSItem extends MethodProvider {
 	 */
 	public String getName() {
 		if (component != null) {
-			return component.getComponentName().replaceAll("\\<.*?>", "");
+			return component.getComponentName();
 		} else {
-			final RSItemDef definition = getDefinition();
+			RSItemDef definition = getDefinition();
 			if (definition != null) {
-				return definition.getName().replaceAll("\\<.*?>", "");
+				return definition.getName();
 			}
 		}
 		return null;
@@ -132,21 +132,8 @@ public class RSItem extends MethodProvider {
 	 * @return <tt>true</tt> if the component was clicked
 	 *         successfully; otherwise <tt>false</tt>.
 	 */
-	public boolean doAction(final String action) {
-		return doAction(action, null);
-	}
-
-	/**
-	 * Performs the given action on the component wrapped by
-	 * this RSItem if possible.
-	 *
-	 * @param action The action to perform.
-	 * @param option The option of the action to perform.
-	 * @return <tt>true</tt> if the component was clicked
-	 *         successfully; otherwise <tt>false</tt>.
-	 */
-	public boolean doAction(final String action, final String option) {
-		return component != null && component.doAction(action, option);
+	public boolean doAction(String action) {
+		return component != null && component.doAction(action);
 	}
 
 	/**
@@ -157,7 +144,7 @@ public class RSItem extends MethodProvider {
 	 * @return <tt>true</tt> if the component was clicked
 	 *         successfully; otherwise <tt>false</tt>.
 	 */
-	public boolean doClick(final boolean left) {
+	public boolean doClick(boolean left) {
 		return component != null && component.doClick(left);
 	}
 

@@ -1,12 +1,8 @@
 package org.rsbot.script.wrappers;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import org.rsbot.script.methods.MethodContext;
+
+import java.util.*;
 
 /**
  * @author Jacmob
@@ -23,14 +19,14 @@ public class RSLocalPath extends RSPath {
 	public static final int WALL_WEST = 0x80;
 	public static final int BLOCKED = 0x100;
 
-	protected final RSTile end;
+	protected RSTile end;
 	protected RSTile base;
 	protected int[][] flags;
 	protected int offX, offY;
 
 	private RSTilePath tilePath;
 
-	public RSLocalPath(final MethodContext ctx, final RSTile end) {
+	public RSLocalPath(MethodContext ctx, RSTile end) {
 		super(ctx);
 		this.end = end;
 	}
@@ -38,15 +34,13 @@ public class RSLocalPath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public boolean traverse(final EnumSet<TraversalOption> options) {
+	public boolean traverse(EnumSet<TraversalOption> options) {
 		return getNext() != null && tilePath.traverse(options);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isValid() {
 		return getNext() != null && !methods.players.getMyPlayer().getLocation().equals(getEnd());
 	}
@@ -54,14 +48,13 @@ public class RSLocalPath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getNext() {
 		if (!methods.game.getMapBase().equals(base)) {
-			final int[][] flags = methods.walking.getCollisionFlags(methods.game.getPlane());
+			int[][] flags = methods.walking.getCollisionFlags(methods.game.getPlane());
 			if (flags != null) {
 				base = methods.game.getMapBase();
-				final RSTile start = methods.players.getMyPlayer().getLocation();
-				final RSTile[] tiles = findPath(start, end);
+				RSTile start = methods.players.getMyPlayer().getLocation();
+				RSTile[] tiles = findPath(start, end);
 				if (tiles == null) {
 					base = null;
 					return null;
@@ -75,7 +68,6 @@ public class RSLocalPath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getStart() {
 		return null;
 	}
@@ -83,7 +75,6 @@ public class RSLocalPath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getEnd() {
 		return end;
 	}
@@ -100,20 +91,19 @@ public class RSLocalPath extends RSPath {
 
 	protected class Node {
 
-		public final int x;
-		public final int y;
+		public int x, y;
 		public Node prev;
 		public double g, f;
 		public boolean border;
 
-		public Node(final int x, final int y, final boolean border) {
+		public Node(int x, int y, boolean border) {
 			this.border = border;
 			this.x = x;
 			this.y = y;
 			g = f = 0;
 		}
 
-		public Node(final int x, final int y) {
+		public Node(int x, int y) {
 			this.x = x;
 			this.y = y;
 			g = f = 0;
@@ -121,13 +111,13 @@ public class RSLocalPath extends RSPath {
 
 		@Override
 		public int hashCode() {
-			return x << 4 | y;
+			return (x << 4) | y;
 		}
 
 		@Override
-		public boolean equals(final Object o) {
+		public boolean equals(Object o) {
 			if (o instanceof Node) {
-				final Node n = (Node) o;
+				Node n = (Node) o;
 				return x == n.x && y == n.y;
 			}
 			return false;
@@ -138,25 +128,25 @@ public class RSLocalPath extends RSPath {
 			return "(" + x + "," + y + ")";
 		}
 
-		public RSTile toRSTile(final int baseX, final int baseY) {
+		public RSTile toRSTile(int baseX, int baseY) {
 			return new RSTile(x + baseX, y + baseY);
 		}
 
 	}
 
-	protected RSTile[] findPath(final RSTile start, final RSTile end) {
+	protected RSTile[] findPath(RSTile start, RSTile end) {
 		return findPath(start, end, false);
 	}
 
-	private RSTile[] findPath(final RSTile start, final RSTile end, boolean remote) {
-		final int base_x = base.getX(), base_y = base.getY();
-		final int curr_x = start.getX() - base_x, curr_y = start.getY() - base_y;
+	private RSTile[] findPath(RSTile start, RSTile end, boolean remote) {
+		int base_x = base.getX(), base_y = base.getY();
+		int curr_x = start.getX() - base_x, curr_y = start.getY() - base_y;
 		int dest_x = end.getX() - base_x, dest_y = end.getY() - base_y;
 
 		// load client data
-		final int plane = methods.game.getPlane();
+		int plane = methods.game.getPlane();
 		flags = methods.walking.getCollisionFlags(plane);
-		final RSTile offset = methods.walking.getCollisionOffset(plane);
+		RSTile offset = methods.walking.getCollisionOffset(plane);
 		offX = offset.getX();
 		offY = offset.getY();
 
@@ -178,10 +168,10 @@ public class RSLocalPath extends RSPath {
 		}
 
 		// structs
-		final HashSet<Node> open = new HashSet<Node>();
-		final HashSet<Node> closed = new HashSet<Node>();
+		HashSet<Node> open = new HashSet<Node>();
+		HashSet<Node> closed = new HashSet<Node>();
 		Node curr = new Node(curr_x, curr_y);
-		final Node dest = new Node(dest_x, dest_y);
+		Node dest = new Node(dest_x, dest_y);
 
 		curr.f = heuristic(curr, dest);
 		open.add(curr);
@@ -195,9 +185,9 @@ public class RSLocalPath extends RSPath {
 			}
 			open.remove(curr);
 			closed.add(curr);
-			for (final Node next : successors(curr)) {
+			for (Node next : successors(curr)) {
 				if (!closed.contains(next)) {
-					final double t = curr.g + dist(curr, next);
+					double t = curr.g + dist(curr, next);
 					boolean use_t = false;
 					if (!open.contains(next)) {
 						open.add(next);
@@ -221,8 +211,8 @@ public class RSLocalPath extends RSPath {
 		return findPath(start, pull(end));
 	}
 
-	private RSTile pull(final RSTile tile) {
-		final RSTile p = methods.players.getMyPlayer().getLocation();
+	private RSTile pull(RSTile tile) {
+		RSTile p = methods.players.getMyPlayer().getLocation();
 		int x = tile.getX(), y = tile.getY();
 		if (p.getX() < x) {
 			x -= 2;
@@ -237,7 +227,7 @@ public class RSLocalPath extends RSPath {
 		return new RSTile(x, y);
 	}
 
-	private double heuristic(final Node start, final Node end) {
+	private double heuristic(Node start, Node end) {
 		double dx = start.x - end.x;
 		double dy = start.y - end.y;
 		if (dx < 0) {
@@ -252,7 +242,7 @@ public class RSLocalPath extends RSPath {
 		//return 1.41421356 * diagonal + (manhattan - 2 * diagonal);
 	}
 
-	private double dist(final Node start, final Node end) {
+	private double dist(Node start, Node end) {
 		if (start.x != end.x && start.y != end.y) {
 			return 1.41421356;
 		} else {
@@ -260,9 +250,9 @@ public class RSLocalPath extends RSPath {
 		}
 	}
 
-	private Node lowest_f(final Set<Node> open) {
+	private Node lowest_f(Set<Node> open) {
 		Node best = null;
-		for (final Node t : open) {
+		for (Node t : open) {
 			if (best == null || t.f < best.f) {
 				best = t;
 			}
@@ -270,8 +260,8 @@ public class RSLocalPath extends RSPath {
 		return best;
 	}
 
-	private RSTile[] path(final Node end, final int base_x, final int base_y) {
-		final LinkedList<RSTile> path = new LinkedList<RSTile>();
+	private RSTile[] path(Node end, int base_x, int base_y) {
+		LinkedList<RSTile> path = new LinkedList<RSTile>();
 		Node p = end;
 		while (p != null) {
 			path.addFirst(p.toRSTile(base_x, base_y));
@@ -280,12 +270,12 @@ public class RSLocalPath extends RSPath {
 		return path.toArray(new RSTile[path.size()]);
 	}
 
-	private List<Node> successors(final Node t) {
-		final LinkedList<Node> tiles = new LinkedList<Node>();
-		final int x = t.x, y = t.y;
-		final int f_x = x - offX, f_y = y - offY;
-		final int here = flags[f_x][f_y];
-		final int upper = flags.length - 1;
+	private List<Node> successors(Node t) {
+		LinkedList<Node> tiles = new LinkedList<Node>();
+		int x = t.x, y = t.y;
+		int f_x = x - offX, f_y = y - offY;
+		int here = flags[f_x][f_y];
+		int upper = flags.length - 1;
 		if (f_y > 0 && (here & WALL_SOUTH) == 0 && (flags[f_x][f_y - 1] & BLOCKED) == 0) {
 			tiles.add(new Node(x, y - 1));
 		}

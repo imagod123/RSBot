@@ -1,11 +1,11 @@
 package org.rsbot.script.randoms;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSComponent;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -16,11 +16,11 @@ public class CloseAllInterface extends Random {
 
 	static class ComponentDef {
 
-		final int parent;
-		final int child;
-		final boolean text;
+		int parent;
+		int child;
+		boolean text;
 
-		public ComponentDef(final int parent, final int child, final boolean text) {
+		public ComponentDef(int parent, int child, boolean text) {
 			this.parent = parent;
 			this.child = child;
 			this.text = text;
@@ -37,7 +37,6 @@ public class CloseAllInterface extends Random {
 		addChild(594, 48); // Report
 		addChild(275, 8); // Quest
 		addChild(206, 13); // Price check
-		addChild(266, 1); // Tombstone
 		addChild(266, 11); // Grove
 		addChild(102, 13); // Death items
 		addChild(14, 88, true); // New pin
@@ -52,11 +51,11 @@ public class CloseAllInterface extends Random {
 		addChild(1107, 174); // Clan Vexillum
 	}
 
-	private void addChild(final int parent, final int idx) {
+	private void addChild(int parent, int idx) {
 		components.add(new ComponentDef(parent, idx, false));
 	}
 
-	private void addChild(final int parent, final int idx, final boolean text) {
+	private void addChild(int parent, int idx, boolean text) {
 		components.add(new ComponentDef(parent, idx, text));
 	}
 
@@ -68,9 +67,11 @@ public class CloseAllInterface extends Random {
 					return true;
 				}
 			}
-			for (final ComponentDef c : components) {
-				final RSComponent comp = interfaces.getComponent(c.parent, c.child);
-				if (comp.isValid() && !(c.text && (comp.getText() == null || comp.getText().isEmpty()))) {
+			for (ComponentDef c : components) {
+				RSComponent comp = interfaces.getComponent(c.parent, c.child);
+				if (comp.isValid()
+						&& !(c.text && (comp.getText() == null || comp
+						.getText().isEmpty()))) {
 					return true;
 				}
 			}
@@ -81,11 +82,13 @@ public class CloseAllInterface extends Random {
 	@Override
 	public int loop() {
 		sleep(random(500, 900));
-		if (interfaces.get(755).isValid() && interfaces.getComponent(755, 0).getComponents().length > 0) {
+
+		if (interfaces.get(755).isValid()
+				&& (interfaces.getComponent(755, 0).getComponents().length > 0)) {
 			interfaces.getComponent(755, 44).doClick();
 			return random(500, 900);
 		}
-		for (final ComponentDef c : components) {
+		for (ComponentDef c : components) {
 			if (interfaces.getComponent(c.parent, c.child).isValid()) {
 				interfaces.getComponent(c.parent, c.child).doClick();
 				sleep(random(500, 900));
@@ -95,6 +98,8 @@ public class CloseAllInterface extends Random {
 				break;
 			}
 		}
+
 		return -1;
 	}
+
 }

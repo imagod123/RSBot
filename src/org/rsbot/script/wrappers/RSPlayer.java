@@ -1,24 +1,23 @@
 package org.rsbot.script.wrappers;
 
-import java.awt.Point;
-import java.lang.ref.SoftReference;
-
 import org.rsbot.client.RSPlayerComposite;
 import org.rsbot.script.methods.MethodContext;
+
+import java.awt.*;
+import java.lang.ref.SoftReference;
 
 /**
  * Represents a player.
  */
 public class RSPlayer extends RSCharacter {
 
-	private final SoftReference<org.rsbot.client.RSPlayer> p;
+	private SoftReference<org.rsbot.client.RSPlayer> p;
 
 	public RSPlayer(final MethodContext ctx, final org.rsbot.client.RSPlayer p) {
 		super(ctx);
 		this.p = new SoftReference<org.rsbot.client.RSPlayer>(p);
 	}
 
-	@Override
 	protected org.rsbot.client.RSCharacter getAccessor() {
 		return p.get();
 	}
@@ -37,7 +36,7 @@ public class RSPlayer extends RSCharacter {
 	}
 
 	public int getNPCID() {
-		final RSPlayerComposite comp = p.get().getComposite();
+		RSPlayerComposite comp = p.get().getComposite();
 		if (comp != null) {
 			return comp.getNPCID();
 		}
@@ -45,20 +44,11 @@ public class RSPlayer extends RSCharacter {
 	}
 
 	public boolean isIdle() {
-		return !isMoving() && getAnimation() == -1 && !isInCombat();
+		return !isMoving() && (getAnimation() == -1) && !isInCombat();
 	}
 
 	@Override
-	public boolean doAction(final String action) {
-		return doAction(action, null);
-	}
-
-	@Override
-	public boolean doAction(final String action, final String option) {
-		final RSModel model = getModel();
-		if (model != null && isValid()) {
-			return model.doAction(action, option);
-		}
+	public boolean doAction(String action) {
 		try {
 			Point screenLoc;
 			for (int i = 0; i < 20; i++) {
@@ -71,7 +61,7 @@ public class RSPlayer extends RSCharacter {
 				}
 				methods.mouse.move(screenLoc);
 			}
-			final String[] items = methods.menu.getItems();
+			String[] items = methods.menu.getItems();
 			if (items.length <= 1) {
 				return false;
 			}
@@ -80,9 +70,9 @@ public class RSPlayer extends RSCharacter {
 				return true;
 			} else {
 				methods.mouse.click(false);
-				return methods.menu.doAction(action, option);
+				return methods.menu.doAction(action);
 			}
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}

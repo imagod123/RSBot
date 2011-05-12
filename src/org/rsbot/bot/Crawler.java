@@ -1,15 +1,14 @@
 package org.rsbot.bot;
 
+import org.rsbot.util.GlobalConfiguration;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.rsbot.util.GlobalConfiguration;
 
 class Crawler {
 	private static final Logger log = Logger.getLogger(Crawler.class.getName());
@@ -17,7 +16,7 @@ class Crawler {
 	private static HashMap<String, String> parameters;
 	private final String world_prefix;
 
-	public Crawler(final String root) {
+	public Crawler(String root) {
 		final String index = firstMatch(
 				"<a id=\"continue\" class=\"barItem\" href=\"([^\"]+)\"\\s+onclick=\"[^\"]+\">Continue to Full Site for News and Game Help",
 				downloadPage(root, null));
@@ -54,11 +53,9 @@ class Crawler {
 
 	private String downloadPage(final String url, final String referer) {
 		try {
-			final HttpURLConnection con = GlobalConfiguration.getHttpConnection(new URL(url));
-			if (referer != null && !referer.isEmpty()) {
-				con.addRequestProperty("Referer", referer);
-			}
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			final BufferedReader reader = new BufferedReader(
+					new InputStreamReader(GlobalConfiguration.getURLConnection(
+							new URL(url), referer).getInputStream()));
 			final StringBuilder buf = new StringBuilder();
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -90,7 +87,7 @@ class Crawler {
 	}
 
 	private String removeTrailingChar(final String str, final char ch) {
-		if (str == null || str.isEmpty()) {
+		if ((str == null) || str.isEmpty()) {
 			return str;
 		} else if (str.length() == 1) {
 			return str.charAt(0) == ch ? "" : str;

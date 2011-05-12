@@ -1,8 +1,8 @@
 package org.rsbot.script.methods;
 
-import java.util.ArrayList;
-
 import org.rsbot.script.wrappers.RSComponent;
+
+import java.util.ArrayList;
 
 /**
  * Clan chat related operations.
@@ -56,7 +56,7 @@ public class ClanChat extends MethodProvider {
 		if (isInformationOpen()) {
 			closeInformation();
 		}
-		return temp != null ? temp.trim() : null;
+		return temp.trim();
 	}
 
 	/**
@@ -64,12 +64,11 @@ public class ClanChat extends MethodProvider {
 	 *
 	 * @return The name of the channel or null if none
 	 */
-
 	public String getChannelName() {
 		String temp = null;
 		if (isInformationOpen()) {
-			temp = methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO, INTERFACE_CLAN_CHAT_INFO_CHANNEL_NAME)
-			.getText();
+			temp = methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO,
+					INTERFACE_CLAN_CHAT_INFO_CHANNEL_NAME).getText();
 		} else {
 			if (methods.game.getCurrentTab() != Game.TAB_CLAN_CHAT) {
 				methods.game.openTab(Game.TAB_CLAN_CHAT);
@@ -86,7 +85,7 @@ public class ClanChat extends MethodProvider {
 		if (isInformationOpen()) {
 			closeInformation();
 		}
-		return temp != null ? temp.trim() : null;
+		return temp.trim();
 	}
 
 	/**
@@ -95,13 +94,13 @@ public class ClanChat extends MethodProvider {
 	 * @return The users in the channel or null if unavailable
 	 */
 	public String[] getChannelUsers() {
-		final ArrayList<String> tempList = new ArrayList<String>();
+		ArrayList<String> tempList = new ArrayList<String>();
 		if (methods.game.getCurrentTab() != Game.TAB_CLAN_CHAT) {
 			methods.game.openTab(Game.TAB_CLAN_CHAT);
 		}
 		if (methods.game.getCurrentTab() == Game.TAB_CLAN_CHAT) {
 			if (methods.interfaces.getComponent(INTERFACE_CLAN_CHAT, INTERFACE_CLAN_CHAT_USERS_LIST) != null) {
-				for (final RSComponent comp : methods.interfaces.getComponent(INTERFACE_CLAN_CHAT,
+				for (RSComponent comp : methods.interfaces.getComponent(INTERFACE_CLAN_CHAT,
 						INTERFACE_CLAN_CHAT_USERS_LIST).getComponents()) {
 					if (comp.getText() != null) {
 						tempList.add(comp.getText().trim());
@@ -111,9 +110,12 @@ public class ClanChat extends MethodProvider {
 				}
 			}
 		}
-		final String[] temp = new String[tempList.size()];
-		tempList.toArray(temp);
-		return temp;
+		if (tempList != null) {
+			String[] temp = new String[tempList.size()];
+			tempList.toArray(temp);
+			return temp;
+		}
+		return null;
 	}
 
 	/**
@@ -121,13 +123,17 @@ public class ClanChat extends MethodProvider {
 	 *
 	 * @return <tt>true</tt> if in a channel; otherwise <tt>false</tt>
 	 */
-
 	public boolean isInChannel() {
 		if (methods.game.getCurrentTab() != Game.TAB_CLAN_CHAT) {
 			methods.game.openTab(Game.TAB_CLAN_CHAT);
 		}
-		return methods.game.getCurrentTab() == Game.TAB_CLAN_CHAT && methods.interfaces.getComponent
-		(INTERFACE_CLAN_CHAT, INTERFACE_CLAN_CHAT_CHECK).containsText("If you");
+		if (methods.game.getCurrentTab() == Game.TAB_CLAN_CHAT) {
+			return methods.interfaces.getComponent(INTERFACE_CLAN_CHAT, INTERFACE_CLAN_CHAT_CHECK).containsText(
+					"If you");
+
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -142,8 +148,8 @@ public class ClanChat extends MethodProvider {
 			}
 			if (methods.game.getCurrentTab() == Game.TAB_CLAN_CHAT) {
 				if (isInChannel()) {
-					methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO, INTERFACE_CLAN_CHAT_INFO_BUTTON)
-					.doClick();
+					methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO,
+							INTERFACE_CLAN_CHAT_INFO_BUTTON).doClick();
 				} else {
 					return false;
 				}
@@ -159,9 +165,7 @@ public class ClanChat extends MethodProvider {
 	 */
 	public boolean closeInformation() {
 		if (isInformationOpen()) {
-			methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO, INTERFACE_CLAN_CHAT_INFO_CLOSE_BUTTON)
-			.doClick();
-			sleep(random(800, 12000));
+			methods.interfaces.getComponent(INTERFACE_CLAN_CHAT_INFO, INTERFACE_CLAN_CHAT_INFO_CLOSE_BUTTON).doClick();
 		}
 		return !isInformationOpen();
 	}

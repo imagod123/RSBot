@@ -1,13 +1,13 @@
 package org.rsbot.script.methods;
 
+import org.rsbot.script.wrappers.GEItemInfo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.rsbot.script.wrappers.GEItemInfo;
 
 /**
  * Obtains information on tradeable items from the Grand Exchange website and
@@ -25,18 +25,18 @@ public class GrandExchange extends MethodProvider {
 	public static final int INTERFACE_GRAND_EXCHANGE_SELL_INVENTORY = 107;
 	public static final int INTERFACE_BUY_SEARCH_BOX = 389;
 	public static final int[] GRAND_EXCHANGE_SELL_BUTTON = {29, 45, 61, 77,
-		93, 109};
+			93, 109};
 	public static final int[] GRAND_EXCHANGE_BUY_BUTTON = {30, 46, 62, 78, 94,
-		110};
+			110};
 	public static final int[] GRAND_EXCHANGE_OFFER_BOXES = {19, 35, 51, 67,
-		83, 99};
+			83, 99};
 	public static final int GRAND_EXCHANGE_COLLECT_BOX_ONE = 209;
 	public static final int GRAND_EXCHANGE_COLLECT_BOX_TWO = 211;
 
 	public static final int[] GRAND_EXCHANGE_CLERK = {6528, 6529};
 
 	private static final Pattern PATTERN = Pattern
-	.compile("(?i)<td><img src=\".+obj_sprite\\.gif\\?id=(\\d+)\" alt=\"(.+)\"");
+			.compile("(?i)<td><img src=\".+obj_sprite\\.gif\\?id=(\\d+)\" alt=\"(.+)\"");
 
 	GrandExchange() {
 		super(null);
@@ -49,7 +49,7 @@ public class GrandExchange extends MethodProvider {
 	 */
 	public boolean isOpen() {
 		return methods.interfaces.get(INTERFACE_GRAND_EXCHANGE_WINDOW)
-		.isValid();
+				.isValid();
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class GrandExchange extends MethodProvider {
 			methods.npcs.getNearest(GRAND_EXCHANGE_CLERK).doAction("Exchange");
 		}
 		return methods.interfaces.get(INTERFACE_GRAND_EXCHANGE_WINDOW)
-		.isValid();
+				.isValid();
 	}
 
 	/**
@@ -71,9 +71,9 @@ public class GrandExchange extends MethodProvider {
 	 * @param slot An int for the corresponding slot.
 	 * @return <tt>True</tt> if the slot is free from activity.
 	 */
-	public boolean checkSlotIsEmpty(final int slot) {
+	public boolean checkSlotIsEmpty(int slot) {
 		try {
-			final int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
+			int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
 			if (isOpen()) {
 				if (methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW, slotComponent).getComponent(
 						10).containsText("Empty")) {
@@ -96,9 +96,9 @@ public class GrandExchange extends MethodProvider {
 	 * @return The item name as a string equal to the item being sold/brought
 	 *         Will return null if no items are being sold.
 	 */
-	public String checkSlot(final int slot) {
+	public String checkSlot(int slot) {
 		try {
-			final int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
+			int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
 			if (isOpen()) {
 				if (methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW, slotComponent).getComponent(
 						10).isValid()) {
@@ -122,12 +122,12 @@ public class GrandExchange extends MethodProvider {
 	 * @return An int of the corresponding slot.
 	 *         0 = Not found.
 	 */
-	public int findItem(final String name) {
+	public int findItem(String name) {
 		for (int i = 1; i <= 6; i++) {
 			if (isOpen()) {
 				if (checkSlotIsEmpty(i)) {
-					final int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[i];
-					final String s = methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW,
+					int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[i];
+					String s = methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW,
 							slotComponent).getComponent(18).getText();
 					if (s.equals(name)) {
 						return i;
@@ -156,15 +156,14 @@ public class GrandExchange extends MethodProvider {
 	/**
 	 * Will check a slot for to see if an item has completed.
 	 *
-	 * @param slot The slot to check.
 	 * @return <tt>true</tt> if Complete, otherwise <tt>false</tt>
 	 */
-	public boolean checkCompleted(final int slot) {
+	public boolean checkCompleted(int slot) {
 		if (!checkSlotIsEmpty(slot)) {
 			if (slot != 0) {
-				final int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
+				int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
 				if (methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW, slotComponent).containsAction(
-				"Abort Offer")) {
+						"Abort Offer")) {
 					return false;
 				} else {
 					return true;
@@ -180,14 +179,14 @@ public class GrandExchange extends MethodProvider {
 	 *
 	 * @param slot An int for the corresponding slot, of which to check
 	 */
-	public void getItem(final int slot) {
+	public void getItem(int slot) {
 		if (isOpen()) {
 			open();
 		}
 		if (isOpen()) {
-			final int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
+			int slotComponent = GRAND_EXCHANGE_OFFER_BOXES[slot];
 			methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW, slotComponent).containsAction(
-			"Veiw Offer");
+					"Veiw Offer");
 			sleep(random(700, 1200));
 			if (methods.interfaces.getComponent(INTERFACE_GRAND_EXCHANGE_WINDOW,
 					GRAND_EXCHANGE_COLLECT_BOX_TWO).containsAction("Collect")) {
@@ -212,7 +211,7 @@ public class GrandExchange extends MethodProvider {
 	 * @see GrandExchange#lookup(int)
 	 */
 	public String getItemName(final int itemID) {
-		final GEItem geItem = lookup(itemID);
+		GEItem geItem = lookup(itemID);
 		if (geItem != null) {
 			return geItem.getName();
 		}
@@ -227,7 +226,7 @@ public class GrandExchange extends MethodProvider {
 	 * @see GrandExchange#lookup(java.lang.String)
 	 */
 	public int getItemID(final String itemName) {
-		final GEItem geItem = lookup(itemName);
+		GEItem geItem = lookup(itemName);
 		if (geItem != null) {
 			return geItem.getID();
 		}
@@ -243,13 +242,13 @@ public class GrandExchange extends MethodProvider {
 	 */
 	public GEItem lookup(final int itemID) {
 		try {
-			final URL url = new URL(GrandExchange.HOST + GrandExchange.GET + itemID);
-			final BufferedReader br = new BufferedReader(new InputStreamReader(
+			URL url = new URL(GrandExchange.HOST + GrandExchange.GET + itemID);
+			BufferedReader br = new BufferedReader(new InputStreamReader(
 					url.openStream()));
 			String input;
 			boolean exists = false;
 			int i = 0;
-			final double[] values = new double[4];
+			double[] values = new double[4];
 			String name = "", examine = "";
 			while ((input = br.readLine()) != null) {
 				if (input.contains("<div class=\"brown_box main_ge_page")
@@ -271,7 +270,7 @@ public class GrandExchange extends MethodProvider {
 				}
 			}
 			return new GEItem(name, examine, itemID, values);
-		} catch (final IOException ignore) {
+		} catch (IOException ignore) {
 		}
 		return null;
 	}
@@ -285,10 +284,10 @@ public class GrandExchange extends MethodProvider {
 	 */
 	public GEItem lookup(final String itemName) {
 		try {
-			final URL url = new URL(GrandExchange.HOST
+			URL url = new URL(GrandExchange.HOST
 					+ "/m=itemdb_rs/results.ws?query=" + itemName
 					+ "&price=all&members=");
-			final BufferedReader br = new BufferedReader(new InputStreamReader(
+			BufferedReader br = new BufferedReader(new InputStreamReader(
 					url.openStream()));
 			String input;
 			while ((input = br.readLine()) != null) {
@@ -298,7 +297,7 @@ public class GrandExchange extends MethodProvider {
 						return null;
 					}
 				} else if (input.startsWith("<td><img src=")) {
-					final Matcher matcher = GrandExchange.PATTERN.matcher(input);
+					Matcher matcher = GrandExchange.PATTERN.matcher(input);
 					if (matcher.find()) {
 						if (matcher.group(2).contains(itemName)) {
 							return lookup(Integer.parseInt(matcher.group(1)));
@@ -306,7 +305,7 @@ public class GrandExchange extends MethodProvider {
 					}
 				}
 			}
-		} catch (final IOException ignored) {
+		} catch (IOException ignored) {
 		}
 		return null;
 	}
@@ -322,9 +321,9 @@ public class GrandExchange extends MethodProvider {
 					return Double.parseDouble(str);
 				}
 				return Double.parseDouble(str.substring(0, str.length() - 1))
-				* (str.endsWith("b") ? 1000000000 : str.endsWith("m") ? 1000000 : 1000);
+						* (str.endsWith("b") ? 1000000000 : str.endsWith("m") ? 1000000 : 1000);
 			}
-			final int k = str.startsWith("+") ? 1 : -1;
+			int k = str.startsWith("+") ? 1 : -1;
 			str = str.substring(1);
 			return Double.parseDouble(str.substring(0, str.length() - 1)) * k;
 		}
@@ -356,14 +355,14 @@ public class GrandExchange extends MethodProvider {
 		private final double change90;
 		private final double change180;
 
-		GEItem(final String name, final String examine, final int id, final double[] values) {
+		GEItem(String name, String examine, int id, double[] values) {
 			this.name = name;
 			this.examine = examine;
 			this.id = id;
-			guidePrice = (int) values[0];
-			change30 = values[1];
-			change90 = values[2];
-			change180 = values[3];
+			this.guidePrice = (int) values[0];
+			this.change30 = values[1];
+			this.change90 = values[2];
+			this.change180 = values[3];
 		}
 
 		/**
@@ -372,7 +371,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The change in price for the last 30 days of this item.
 		 */
 		public double getChange30Days() {
-			return change30;
+			return this.change30;
 		}
 
 		/**
@@ -381,7 +380,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The change in price for the last 90 days of this item.
 		 */
 		public double getChange90Days() {
-			return change90;
+			return this.change90;
 		}
 
 		/**
@@ -390,7 +389,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The change in price for the last 180 days of this item.
 		 */
 		public double getChange180Days() {
-			return change180;
+			return this.change180;
 		}
 
 		/**
@@ -399,7 +398,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The ID of this item.
 		 */
 		public int getID() {
-			return id;
+			return this.id;
 		}
 
 		/**
@@ -417,7 +416,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The name of this item.
 		 */
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		/**
@@ -426,7 +425,7 @@ public class GrandExchange extends MethodProvider {
 		 * @return The description of this item.
 		 */
 		public String getDescription() {
-			return examine;
+			return this.examine;
 		}
 
 		@Deprecated
@@ -446,7 +445,7 @@ public class GrandExchange extends MethodProvider {
 	}
 
 	@Deprecated
-	public GEItemInfo loadItemInfo(final int i) {
+	public GEItemInfo loadItemInfo(int i) {
 		// TODO Auto-generated method stub
 		return null;
 	}

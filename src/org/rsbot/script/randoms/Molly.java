@@ -1,14 +1,10 @@
 package org.rsbot.script.randoms;
 
-import java.util.ArrayList;
-
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
-import org.rsbot.script.wrappers.RSComponent;
-import org.rsbot.script.wrappers.RSInterface;
-import org.rsbot.script.wrappers.RSNPC;
-import org.rsbot.script.wrappers.RSObject;
-import org.rsbot.script.wrappers.RSTile;
+import org.rsbot.script.wrappers.*;
+
+import java.util.ArrayList;
 
 //Checked 3/7/10
 
@@ -45,31 +41,22 @@ public class Molly extends Random {
 	private long delayTime;
 
 	@Override
-	public void onFinish() {
-		mollyID = -1;
-		cameraSet = false;
-		talkedToMolly = false;
-		finished = false;
-		delayTime = -1;
-	}
-
-	@Override
 	public boolean activateCondition() {
 		molly = npcs.getNearest("Molly");
 		controlPanel = objects.getNearest(Molly.CONTROL_PANEL_ID);
-		return molly != null && molly.isInteractingWithLocalPlayer()
-		|| controlPanel != null;
+		return (molly != null && molly.isInteractingWithLocalPlayer())
+				|| (controlPanel != null);
 	}
 
 	private boolean inControlInterface() {
 		final RSInterface i = interfaces.get(Molly.CONTROL_INTERFACEGROUP);
-		return i != null && i.isValid();
+		return (i != null) && i.isValid();
 	}
 
 	private boolean inControlRoom() {
 		final RSObject o = objects.getNearest(DOOR_ID);
-		return o != null
-		&& getMyPlayer().getLocation().getX() > o.getLocation().getX();
+		return (o != null)
+				&& (getMyPlayer().getLocation().getX() > o.getLocation().getX());
 	}
 
 	@Override
@@ -82,8 +69,8 @@ public class Molly extends Random {
 			}
 		}
 		controlPanel = objects.getNearest(Molly.CONTROL_PANEL_ID);
-		while (getMyPlayer().isMoving() || getMyPlayer().getAnimation() != -1) {
-			return random(800, 1300);
+		while (getMyPlayer().isMoving() || (getMyPlayer().getAnimation() != -1)) {
+			return (random(800, 1300));
 		}
 		if (interfaces.canContinue()) {
 			interfaces.clickContinue();
@@ -101,8 +88,8 @@ public class Molly extends Random {
 		}
 		final RSComponent skipInterface = interfaces.get(
 				Molly.MOLLY_CHATBOX_INTERFACEGROUP).getComponent(
-						Molly.MOLLY_CHATBOX_SKIP);
-		if (skipInterface != null && skipInterface.isValid()
+				Molly.MOLLY_CHATBOX_SKIP);
+		if ((skipInterface != null) && skipInterface.isValid()
 				&& skipInterface.getAbsoluteY() > 5
 				&& skipInterface.containsText("Yes, I")) {
 			skipInterface.doClick();
@@ -110,8 +97,8 @@ public class Molly extends Random {
 		}
 		final RSComponent noThanksInterface = interfaces.get(
 				Molly.MOLLY_CHATBOX_INTERFACEGROUP).getComponent(
-						Molly.MOLLY_CHATBOX_NOTHANKS);
-		if (noThanksInterface != null && noThanksInterface.isValid()
+				Molly.MOLLY_CHATBOX_NOTHANKS);
+		if ((noThanksInterface != null) && noThanksInterface.isValid()
 				&& noThanksInterface.getAbsoluteY() > 5) {
 			setCamera();
 			sleep(random(800, 1200));
@@ -122,7 +109,7 @@ public class Molly extends Random {
 		if (!cameraSet) {
 			camera.setPitch(true);
 			cameraSet = true;
-			return random(300, 500);
+			return (random(300, 500));
 		}
 		if (finished && !inControlRoom()) {
 			if (!calc.tileOnScreen(molly.getLocation())) {
@@ -130,29 +117,29 @@ public class Molly extends Random {
 				return random(1000, 2000);
 			}
 			molly.doAction("Talk");
-			return random(1000, 1200);
+			return (random(1000, 1200));
 		}
 		if (finished && inControlRoom()) {
 			if (!openDoor()) {
-				return random(1000, 1500);
+				return (random(1000, 1500));
 			}
-			return random(400, 600);
+			return (random(400, 600));
 		}
 		if (!inControlRoom()) {
 			if (talkedToMolly
 					&& !finished
 					&& (interfaces.get(Molly.MOLLY_CHATBOX_INTERFACEGROUP) == null || interfaces
-							.get(Molly.MOLLY_CHATBOX_INTERFACEGROUP)
-							.getComponent(0).getAbsoluteY() < 2)
-							&& (interfaces.get(Molly.MOLLY_CHATBOX_NOTHANKS) == null || interfaces
-									.get(Molly.MOLLY_CHATBOX_NOTHANKS).getComponent(0)
-									.getAbsoluteY() < 2)) {
+					.get(Molly.MOLLY_CHATBOX_INTERFACEGROUP)
+					.getComponent(0).getAbsoluteY() < 2)
+					&& (interfaces.get(Molly.MOLLY_CHATBOX_NOTHANKS) == null || interfaces
+					.get(Molly.MOLLY_CHATBOX_NOTHANKS).getComponent(0)
+					.getAbsoluteY() < 2)) {
 				openDoor();
 				sleep(random(800, 1200));
 			} else {
 				molly.doAction("Talk");
 				talkedToMolly = true;
-				return random(1000, 2000);
+				return (random(1000, 2000));
 			}
 		} else {
 			if (npcs.getNearest("Molly") != null) {
@@ -172,7 +159,7 @@ public class Molly extends Random {
 					navigateClaw();
 					delayTime = System.currentTimeMillis();
 					while (!interfaces.canContinue()
-							&& System.currentTimeMillis() - delayTime < 15000) {
+							&& (System.currentTimeMillis() - delayTime < 15000)) {
 					}
 					if (interfaces.canContinue()) {
 						interfaces.clickContinue();
@@ -185,7 +172,7 @@ public class Molly extends Random {
 	}
 
 	private void navigateClaw() {
-		if (!inControlInterface() || mollyID < 1) {
+		if (!inControlInterface() || (mollyID < 1)) {
 			return;
 		}
 		RSObject claw;
@@ -211,26 +198,26 @@ public class Molly extends Random {
 				options.add(Molly.CONTROLS_GRAB);
 			}
 			final RSInterface i = interfaces.get(Molly.CONTROL_INTERFACEGROUP);
-			if (i != null && i.isValid()) {
+			if ((i != null) && i.isValid()) {
 				i.getComponent(options.get(random(0, options.size())))
-				.doClick();
+						.doClick();
 			}
 			delayTime = System.currentTimeMillis();
 			while (!hasClawMoved(clawLoc)
-					&& System.currentTimeMillis() - delayTime < 3500) {
+					&& (System.currentTimeMillis() - delayTime < 3500)) {
 				sleep(10);
 			}
 		}
 	}
 
-	private boolean hasClawMoved(final RSTile prevClawLoc) {
-		final RSObject claw = objects.getNearest(Molly.CLAW_ID);
+	private boolean hasClawMoved(RSTile prevClawLoc) {
+		RSObject claw = objects.getNearest(Molly.CLAW_ID);
 		if (claw == null) {
 			return false;
 		}
-		final RSTile currentClawLoc = claw.getLocation();
-		return currentClawLoc.getX() - prevClawLoc.getX() != 0
-		|| currentClawLoc.getY() - prevClawLoc.getY() != 0;
+		RSTile currentClawLoc = claw.getLocation();
+		return (currentClawLoc.getX() - prevClawLoc.getX() != 0)
+				|| (currentClawLoc.getY() - prevClawLoc.getY() != 0);
 	}
 
 	private boolean openDoor() {
@@ -248,7 +235,7 @@ public class Molly extends Random {
 	}
 
 	private void setCamera() {
-		if (random(0, 6) == 3 && !cameraSet) {
+		if ((random(0, 6) == 3) && !cameraSet) {
 			camera.setPitch(true);
 			cameraSet = true;
 		}

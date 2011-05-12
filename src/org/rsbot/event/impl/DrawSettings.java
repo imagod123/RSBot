@@ -1,13 +1,11 @@
 package org.rsbot.event.impl;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.util.Arrays;
-
 import org.rsbot.bot.Bot;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.script.methods.Settings;
+
+import java.awt.*;
+import java.util.Arrays;
 
 public class DrawSettings implements PaintListener {
 
@@ -19,11 +17,10 @@ public class DrawSettings implements PaintListener {
 
 	private final Settings settings;
 
-	public DrawSettings(final Bot bot) {
+	public DrawSettings(Bot bot) {
 		settings = bot.getMethodContext().settings;
 	}
 
-	@Override
 	public void onRepaint(final Graphics render) {
 		final int[] settings = this.settings.getSettingArray();
 		if (settings != null) {

@@ -1,13 +1,12 @@
 package org.rsbot.script.randoms;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-
 import org.rsbot.script.Random;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.wrappers.RSComponent;
 import org.rsbot.script.wrappers.RSInterface;
 import org.rsbot.script.wrappers.RSNPC;
+
+import java.awt.*;
 
 /**
  * Update by Iscream (Apr 24,2010)
@@ -35,13 +34,6 @@ public class BeehiveSolver extends Random {
 	private static final int BUILD_BEEHIVE = 40;
 	private static final int CLOSE_WINDOW = 38;
 
-
-	@Override
-	public void onFinish() {
-		BeehiveKeeper = null;
-		solved = false;
-	}
-
 	@Override
 	public boolean activateCondition() {
 		if (!game.isLoggedIn()) {
@@ -54,15 +46,15 @@ public class BeehiveSolver extends Random {
 		}
 
 		/*BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
-									if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
-										sleep(random(1000, 1500));
-										BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
-										if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
-											solved = false;
-											sleep(random(1000, 1500));
-											return true;
-										}
-									}*/
+						  if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
+							  sleep(random(1000, 1500));
+							  BeehiveKeeper = npcs.getNearest(BEEHIVE_KEEPER_ID);
+							  if ((BeehiveKeeper != null) || getBeehiveInterface().isValid()) {
+								  solved = false;
+								  sleep(random(1000, 1500));
+								  return true;
+							  }
+						  }*/
 		return false;
 	}
 
@@ -134,32 +126,32 @@ public class BeehiveSolver extends Random {
 		sleep(random(800, 1000));
 		return interfaces.getComponent(243, 7).doClick() || interfaces.getComponent(241,
 				5).doClick() || interfaces.getComponent(
-						242, 6).doClick() || interfaces.getComponent(244, 8).doClick() || interfaces.getComponent(64,
-								5).doClick();
+				242, 6).doClick() || interfaces.getComponent(244, 8).doClick() || interfaces.getComponent(64,
+				5).doClick();
 	}
 
 	public int returnDragTo(final int Model) {
 		switch (Model) {
-		case 16036:
-			return DEST_INTERFACE_IDS[0];
-		case 16025:
-			return DEST_INTERFACE_IDS[1];
-		case 16022:
-			return DEST_INTERFACE_IDS[2];
-		case 16034:
-			return DEST_INTERFACE_IDS[3];
-		default:
-			return -1;
+			case 16036:
+				return DEST_INTERFACE_IDS[0];
+			case 16025:
+				return DEST_INTERFACE_IDS[1];
+			case 16022:
+				return DEST_INTERFACE_IDS[2];
+			case 16034:
+				return DEST_INTERFACE_IDS[3];
+			default:
+				return -1;
 		}
 	}
 
 	public int returnIdAtSlot(final int slot) {
-		if (slot < 1 || slot > 4) {
+		if ((slot < 1) || (slot > 4)) {
 			log.info("Invalid Slot.");
 			interfaces.getComponent(INTERFACE_BEEHIVE_WINDOW, CLOSE_WINDOW).doClick();
 		}
 
-		final int Model_ID = getBeehiveInterface().getComponent(returnSlotId(slot)).getModelID();
+		int Model_ID = getBeehiveInterface().getComponent(returnSlotId(slot)).getModelID();
 
 		if (Model_ID == -1) {
 			log.info("Could not retrieve ID. Restarting.");
@@ -187,18 +179,18 @@ public class BeehiveSolver extends Random {
 
 	public int returnSlotId(final int slot) {
 		switch (slot) {
-		case 1:
-			return 25;
-		case 2:
-			return 22;
-		case 3:
-			return 23;
-		case 4:
-			return 21;
-		default:
-			log.info("Invalid slot ID. Restarting.");
-			interfaces.getComponent(INTERFACE_BEEHIVE_WINDOW, CLOSE_WINDOW).doClick();
-			break;
+			case 1:
+				return 25;
+			case 2:
+				return 22;
+			case 3:
+				return 23;
+			case 4:
+				return 21;
+			default:
+				log.info("Invalid slot ID. Restarting.");
+				interfaces.getComponent(INTERFACE_BEEHIVE_WINDOW, CLOSE_WINDOW).doClick();
+				break;
 		}
 		return -1;
 	}

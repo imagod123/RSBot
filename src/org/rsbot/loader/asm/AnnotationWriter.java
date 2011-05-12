@@ -90,7 +90,6 @@ final class AnnotationWriter implements AnnotationVisitor {
 	// Implementation of the AnnotationVisitor interface
 	// ------------------------------------------------------------------------
 
-	@Override
 	public void visit(final String name, final Object value) {
 		++size;
 		if (named) {
@@ -101,7 +100,7 @@ final class AnnotationWriter implements AnnotationVisitor {
 		} else if (value instanceof Byte) {
 			bv.put12('B', cw.newInteger(((Byte) value).byteValue()).index);
 		} else if (value instanceof Boolean) {
-			final int v = ((Boolean) value).booleanValue() ? 1 : 0;
+			int v = ((Boolean) value).booleanValue() ? 1 : 0;
 			bv.put12('Z', cw.newInteger(v).index);
 		} else if (value instanceof Character) {
 			bv.put12('C', cw.newInteger(((Character) value).charValue()).index);
@@ -110,60 +109,59 @@ final class AnnotationWriter implements AnnotationVisitor {
 		} else if (value instanceof Type) {
 			bv.put12('c', cw.newUTF8(((Type) value).getDescriptor()));
 		} else if (value instanceof byte[]) {
-			final byte[] v = (byte[]) value;
+			byte[] v = (byte[]) value;
 			bv.put12('[', v.length);
-			for (final byte element : v) {
-				bv.put12('B', cw.newInteger(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('B', cw.newInteger(v[i]).index);
 			}
 		} else if (value instanceof boolean[]) {
-			final boolean[] v = (boolean[]) value;
+			boolean[] v = (boolean[]) value;
 			bv.put12('[', v.length);
-			for (final boolean element : v) {
-				bv.put12('Z', cw.newInteger(element ? 1 : 0).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('Z', cw.newInteger(v[i] ? 1 : 0).index);
 			}
 		} else if (value instanceof short[]) {
-			final short[] v = (short[]) value;
+			short[] v = (short[]) value;
 			bv.put12('[', v.length);
-			for (final short element : v) {
-				bv.put12('S', cw.newInteger(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('S', cw.newInteger(v[i]).index);
 			}
 		} else if (value instanceof char[]) {
-			final char[] v = (char[]) value;
+			char[] v = (char[]) value;
 			bv.put12('[', v.length);
-			for (final char element : v) {
-				bv.put12('C', cw.newInteger(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('C', cw.newInteger(v[i]).index);
 			}
 		} else if (value instanceof int[]) {
-			final int[] v = (int[]) value;
+			int[] v = (int[]) value;
 			bv.put12('[', v.length);
-			for (final int element : v) {
-				bv.put12('I', cw.newInteger(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('I', cw.newInteger(v[i]).index);
 			}
 		} else if (value instanceof long[]) {
-			final long[] v = (long[]) value;
+			long[] v = (long[]) value;
 			bv.put12('[', v.length);
-			for (final long element : v) {
-				bv.put12('J', cw.newLong(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('J', cw.newLong(v[i]).index);
 			}
 		} else if (value instanceof float[]) {
-			final float[] v = (float[]) value;
+			float[] v = (float[]) value;
 			bv.put12('[', v.length);
-			for (final float element : v) {
-				bv.put12('F', cw.newFloat(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('F', cw.newFloat(v[i]).index);
 			}
 		} else if (value instanceof double[]) {
-			final double[] v = (double[]) value;
+			double[] v = (double[]) value;
 			bv.put12('[', v.length);
-			for (final double element : v) {
-				bv.put12('D', cw.newDouble(element).index);
+			for (int i = 0; i < v.length; i++) {
+				bv.put12('D', cw.newDouble(v[i]).index);
 			}
 		} else {
-			final Item i = cw.newConstItem(value);
+			Item i = cw.newConstItem(value);
 			bv.put12(".s.IFJDCS".charAt(i.type), i.index);
 		}
 	}
 
-	@Override
 	public void visitEnum(
 			final String name,
 			final String desc,
@@ -175,7 +173,6 @@ final class AnnotationWriter implements AnnotationVisitor {
 		bv.put12('e', cw.newUTF8(desc)).putShort(cw.newUTF8(value));
 	}
 
-	@Override
 	public AnnotationVisitor visitAnnotation(
 			final String name,
 			final String desc) {
@@ -188,7 +185,6 @@ final class AnnotationWriter implements AnnotationVisitor {
 		return new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
 	}
 
-	@Override
 	public AnnotationVisitor visitArray(final String name) {
 		++size;
 		if (named) {
@@ -199,10 +195,9 @@ final class AnnotationWriter implements AnnotationVisitor {
 		return new AnnotationWriter(cw, false, bv, bv, bv.length - 2);
 	}
 
-	@Override
 	public void visitEnd() {
 		if (parent != null) {
-			final byte[] data = parent.data;
+			byte[] data = parent.data;
 			data[offset] = (byte) (size >>> 8);
 			data[offset + 1] = (byte) size;
 		}

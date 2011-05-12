@@ -109,17 +109,16 @@ final class FieldWriter implements FieldVisitor {
 	// Implementation of the FieldVisitor interface
 	// ------------------------------------------------------------------------
 
-	@Override
 	public AnnotationVisitor visitAnnotation(
 			final String desc,
 			final boolean visible) {
 		if (!ClassReader.ANNOTATIONS) {
 			return null;
 		}
-		final ByteVector bv = new ByteVector();
+		ByteVector bv = new ByteVector();
 		// write type, and reserve space for values count
 		bv.putShort(cw.newUTF8(desc)).putShort(0);
-		final AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+		AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 		if (visible) {
 			aw.next = anns;
 			anns = aw;
@@ -130,13 +129,11 @@ final class FieldWriter implements FieldVisitor {
 		return aw;
 	}
 
-	@Override
 	public void visitAttribute(final Attribute attr) {
 		attr.next = attrs;
 		attrs = attr;
 	}
 
-	@Override
 	public void visitEnd() {
 	}
 
@@ -188,9 +185,9 @@ final class FieldWriter implements FieldVisitor {
 	 * @param out where the content of this field must be put.
 	 */
 	void put(final ByteVector out) {
-		final int mask = Opcodes.ACC_DEPRECATED
-		| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-		| (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC);
+		int mask = Opcodes.ACC_DEPRECATED
+				| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+				| ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
 		out.putShort(access & ~mask).putShort(name).putShort(desc);
 		int attributeCount = 0;
 		if (value != 0) {

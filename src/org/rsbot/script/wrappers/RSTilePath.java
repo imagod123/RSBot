@@ -17,23 +17,22 @@ public class RSTilePath extends RSPath {
 
 	private boolean end;
 
-	public RSTilePath(final MethodContext ctx, final RSTile[] tiles) {
+	public RSTilePath(MethodContext ctx, RSTile[] tiles) {
 		super(ctx);
-		orig = tiles;
+		this.orig = tiles;
 		this.tiles = Arrays.copyOf(tiles, tiles.length);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public boolean traverse(final EnumSet<TraversalOption> options) {
-		final RSTile next = getNext();
+	public boolean traverse(EnumSet<TraversalOption> options) {
+		RSTile next = getNext();
 		if (next == null) {
 			return false;
 		}
 		if (next.equals(getEnd())) {
-			if (methods.calc.distanceTo(next) <= 1 || end && methods.players.getMyPlayer().isMoving() || next.equals(
+			if (methods.calc.distanceTo(next) <= 1 || (end && methods.players.getMyPlayer().isMoving()) || next.equals(
 					methods.walking.getDestination())) {
 				return false;
 			}
@@ -47,7 +46,7 @@ public class RSTilePath extends RSPath {
 			sleep(300);
 		}
 		if (options != null && options.contains(TraversalOption.SPACE_ACTIONS)) {
-			final RSTile dest = methods.walking.getDestination();
+			RSTile dest = methods.walking.getDestination();
 			if (dest != null && methods.players.getMyPlayer().isMoving() &&
 					methods.calc.distanceTo(dest) > 5 &&
 					methods.calc.distanceBetween(next, dest) < 7) {
@@ -60,18 +59,17 @@ public class RSTilePath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public boolean isValid() {
-		return tiles.length > 0 && getNext() != null && !methods.players.getMyPlayer().getLocation().equals(getEnd());
+		return tiles.length > 0 && getNext() != null &&
+				!methods.players.getMyPlayer().getLocation().equals(getEnd());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getNext() {
 		for (int i = tiles.length - 1; i >= 0; --i) {
-			if (methods.calc.tileOnMap(tiles[i]) && methods.calc.canReach(tiles[i], false)) {
+			if (methods.calc.tileOnMap(tiles[i])) {
 				return tiles[i];
 			}
 		}
@@ -81,7 +79,6 @@ public class RSTilePath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getStart() {
 		return tiles[0];
 	}
@@ -89,7 +86,6 @@ public class RSTilePath extends RSPath {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public RSTile getEnd() {
 		return tiles[tiles.length - 1];
 	}
@@ -103,7 +99,7 @@ public class RSTilePath extends RSPath {
 	 * @param maxY The max deviation on the Y axis
 	 * @return This path.
 	 */
-	public RSTilePath randomize(final int maxX, final int maxY) {
+	public RSTilePath randomize(int maxX, int maxY) {
 		for (int i = 0; i < tiles.length; ++i) {
 			tiles[i] = orig[i].randomize(maxX, maxY);
 		}
@@ -135,7 +131,7 @@ public class RSTilePath extends RSPath {
 	 * @return an array containing all of the vertices in this path.
 	 */
 	public RSTile[] toArray() {
-		final RSTile[] a = new RSTile[tiles.length];
+		RSTile[] a = new RSTile[tiles.length];
 		System.arraycopy(tiles, 0, a, 0, tiles.length);
 		return a;
 	}

@@ -1,25 +1,13 @@
 package org.rsbot.event;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.List;
-
 import org.rsbot.event.events.RSEvent;
 import org.rsbot.event.listeners.CharacterMovedListener;
 import org.rsbot.event.listeners.MessageListener;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.event.listeners.TextPaintListener;
+
+import java.awt.event.*;
+import java.util.*;
 
 public class EventMulticaster implements EventListener {
 
@@ -42,9 +30,9 @@ public class EventMulticaster implements EventListener {
 	 * Gets the default mask for an event listener.
 	 */
 	@SuppressWarnings("deprecation")
-	public static long getDefaultMask(final EventListener el) {
+	public static long getDefaultMask(EventListener el) {
 		if (el instanceof EventMulticaster) {
-			final EventMulticaster em = (EventMulticaster) el;
+			EventMulticaster em = (EventMulticaster) el;
 			return em.enabledMask;
 		}
 		int mask = 0;
@@ -87,44 +75,44 @@ public class EventMulticaster implements EventListener {
 	/**
 	 * Gets the default mask for an event.
 	 */
-	public static long getDefaultMask(final EventObject e) {
+	public static long getDefaultMask(EventObject e) {
 		long mask = 0;
 		if (e instanceof MouseEvent) {
 			final MouseEvent me = (MouseEvent) e;
 			switch (me.getID()) {
-			case MouseEvent.MOUSE_PRESSED:
-			case MouseEvent.MOUSE_RELEASED:
-			case MouseEvent.MOUSE_CLICKED:
-			case MouseEvent.MOUSE_ENTERED:
-			case MouseEvent.MOUSE_EXITED:
-				mask |= EventMulticaster.MOUSE_EVENT;
-				break;
+				case MouseEvent.MOUSE_PRESSED:
+				case MouseEvent.MOUSE_RELEASED:
+				case MouseEvent.MOUSE_CLICKED:
+				case MouseEvent.MOUSE_ENTERED:
+				case MouseEvent.MOUSE_EXITED:
+					mask |= EventMulticaster.MOUSE_EVENT;
+					break;
 
-			case MouseEvent.MOUSE_MOVED:
-			case MouseEvent.MOUSE_DRAGGED:
-				mask |= EventMulticaster.MOUSE_MOTION_EVENT;
-				break;
+				case MouseEvent.MOUSE_MOVED:
+				case MouseEvent.MOUSE_DRAGGED:
+					mask |= EventMulticaster.MOUSE_MOTION_EVENT;
+					break;
 
-			case MouseEvent.MOUSE_WHEEL:
-				mask |= EventMulticaster.MOUSE_WHEEL_EVENT;
-				break;
+				case MouseEvent.MOUSE_WHEEL:
+					mask |= EventMulticaster.MOUSE_WHEEL_EVENT;
+					break;
 			}
 		} else if (e instanceof FocusEvent) {
 			final FocusEvent fe = (FocusEvent) e;
 			switch (fe.getID()) {
-			case FocusEvent.FOCUS_GAINED:
-			case FocusEvent.FOCUS_LOST:
-				mask |= EventMulticaster.FOCUS_EVENT;
-				break;
+				case FocusEvent.FOCUS_GAINED:
+				case FocusEvent.FOCUS_LOST:
+					mask |= EventMulticaster.FOCUS_EVENT;
+					break;
 			}
 		} else if (e instanceof KeyEvent) {
 			final KeyEvent ke = (KeyEvent) e;
 			switch (ke.getID()) {
-			case KeyEvent.KEY_TYPED:
-			case KeyEvent.KEY_PRESSED:
-			case KeyEvent.KEY_RELEASED:
-				mask |= EventMulticaster.KEY_EVENT;
-				break;
+				case KeyEvent.KEY_TYPED:
+				case KeyEvent.KEY_PRESSED:
+				case KeyEvent.KEY_RELEASED:
+					mask |= EventMulticaster.KEY_EVENT;
+					break;
 			}
 		} else if (e instanceof RSEvent) {
 			final RSEvent rse = (RSEvent) e;
@@ -143,7 +131,7 @@ public class EventMulticaster implements EventListener {
 	/**
 	 * Adds the listener to the tree with a default mask.
 	 */
-	public void addListener(final EventListener el) {
+	public void addListener(EventListener el) {
 		long mask;
 		if (el instanceof EventMulticaster) {
 			final EventMulticaster em = (EventMulticaster) el;
@@ -158,7 +146,7 @@ public class EventMulticaster implements EventListener {
 	 * Adds the listener with the specified mask. If its an EventMulticaster the
 	 * specified mask will be ignored.
 	 */
-	public void addListener(final EventListener el, long mask) {
+	public void addListener(EventListener el, long mask) {
 		synchronized (EventMulticaster.treeLock) {
 			if (listeners.contains(el)) {
 				return;
@@ -183,7 +171,7 @@ public class EventMulticaster implements EventListener {
 	 * <p/>
 	 * Has to hold tree lock.
 	 */
-	private void addMulticaster(final EventMulticaster em) {
+	private void addMulticaster(EventMulticaster em) {
 		if (em.parent != null) {
 			throw new IllegalArgumentException("adding multicaster to multiple multicasters");
 		}
@@ -227,75 +215,75 @@ public class EventMulticaster implements EventListener {
 	/**
 	 * Fires an event to all applicable listeners.
 	 */
-	public void fireEvent(final EventObject e) {
+	public void fireEvent(EventObject e) {
 		fireEvent(e, EventMulticaster.getDefaultMask(e));
 	}
 
 	/**
 	 * Fires an event to all listeners, restricted by the mask.
 	 */
-	public void fireEvent(final EventObject e, final long mask) {
+	public void fireEvent(EventObject e, long mask) {
 		synchronized (EventMulticaster.treeLock) {
 			final int len = listeners.size();
 			for (int i = 0; i < len; i++) {
-				final long m = listenerMasks.get(i);
+				long m = listenerMasks.get(i);
 				if (m != 12288 && (m & mask) == 0) {
 					continue;
 				}
-				final EventListener el = listeners.get(i);
+				EventListener el = listeners.get(i);
 				if (e instanceof MouseEvent) {
-					final MouseEvent me = (MouseEvent) e;
+					MouseEvent me = (MouseEvent) e;
 					switch (me.getID()) {
-					case MouseEvent.MOUSE_PRESSED:
-						((MouseListener) el).mousePressed(me);
-						break;
-					case MouseEvent.MOUSE_RELEASED:
-						((MouseListener) el).mouseReleased(me);
-						break;
-					case MouseEvent.MOUSE_CLICKED:
-						((MouseListener) el).mouseClicked(me);
-						break;
-					case MouseEvent.MOUSE_ENTERED:
-						((MouseListener) el).mouseEntered(me);
-						break;
-					case MouseEvent.MOUSE_EXITED:
-						((MouseListener) el).mouseExited(me);
-						break;
-					case MouseEvent.MOUSE_MOVED:
-						((MouseMotionListener) el).mouseMoved(me);
-						break;
-					case MouseEvent.MOUSE_DRAGGED:
-						((MouseMotionListener) el).mouseDragged(me);
-						break;
-					case MouseEvent.MOUSE_WHEEL:
-						((MouseWheelListener) el).mouseWheelMoved((MouseWheelEvent) me);
-						break;
+						case MouseEvent.MOUSE_PRESSED:
+							((MouseListener) el).mousePressed(me);
+							break;
+						case MouseEvent.MOUSE_RELEASED:
+							((MouseListener) el).mouseReleased(me);
+							break;
+						case MouseEvent.MOUSE_CLICKED:
+							((MouseListener) el).mouseClicked(me);
+							break;
+						case MouseEvent.MOUSE_ENTERED:
+							((MouseListener) el).mouseEntered(me);
+							break;
+						case MouseEvent.MOUSE_EXITED:
+							((MouseListener) el).mouseExited(me);
+							break;
+						case MouseEvent.MOUSE_MOVED:
+							((MouseMotionListener) el).mouseMoved(me);
+							break;
+						case MouseEvent.MOUSE_DRAGGED:
+							((MouseMotionListener) el).mouseDragged(me);
+							break;
+						case MouseEvent.MOUSE_WHEEL:
+							((MouseWheelListener) el).mouseWheelMoved((MouseWheelEvent) me);
+							break;
 					}
 				} else if (e instanceof FocusEvent) {
-					final FocusEvent fe = (FocusEvent) e;
+					FocusEvent fe = (FocusEvent) e;
 					switch (fe.getID()) {
-					case FocusEvent.FOCUS_GAINED:
-						((FocusListener) el).focusGained(fe);
-						break;
-					case FocusEvent.FOCUS_LOST:
-						((FocusListener) el).focusLost(fe);
-						break;
+						case FocusEvent.FOCUS_GAINED:
+							((FocusListener) el).focusGained(fe);
+							break;
+						case FocusEvent.FOCUS_LOST:
+							((FocusListener) el).focusLost(fe);
+							break;
 					}
 				} else if (e instanceof KeyEvent) {
-					final KeyEvent ke = (KeyEvent) e;
+					KeyEvent ke = (KeyEvent) e;
 					switch (ke.getID()) {
-					case KeyEvent.KEY_TYPED:
-						((KeyListener) el).keyTyped(ke);
-						break;
-					case KeyEvent.KEY_PRESSED:
-						((KeyListener) el).keyPressed(ke);
-						break;
-					case KeyEvent.KEY_RELEASED:
-						((KeyListener) el).keyReleased(ke);
-						break;
+						case KeyEvent.KEY_TYPED:
+							((KeyListener) el).keyTyped(ke);
+							break;
+						case KeyEvent.KEY_PRESSED:
+							((KeyListener) el).keyPressed(ke);
+							break;
+						case KeyEvent.KEY_RELEASED:
+							((KeyListener) el).keyReleased(ke);
+							break;
 					}
 				} else if (e instanceof RSEvent) {
-					final RSEvent rse = (RSEvent) e;
+					RSEvent rse = (RSEvent) e;
 					rse.dispatch(el);
 				}
 			}
@@ -319,7 +307,7 @@ public class EventMulticaster implements EventListener {
 	/**
 	 * Returns whether the mask is enabled on this multicaster.
 	 */
-	public final boolean isEnabled(final long mask) {
+	public final boolean isEnabled(long mask) {
 		return (enabledMask & mask) != 0;
 	}
 

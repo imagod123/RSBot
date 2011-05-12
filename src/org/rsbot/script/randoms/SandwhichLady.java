@@ -44,9 +44,9 @@ public class SandwhichLady extends Random {
 			return random(500, 1000);
 		}
 		//Leaves random
-		final int[] portalID = {12731, 11373};
+		int[] portalID = {12731, 11373};
 		if (interfaces.get(242).getComponent(4).containsText("The exit portal's")) {
-			final RSObject portal = objects.getNearest(portalID);
+			RSObject portal = objects.getNearest(portalID);
 			if (portal != null) {
 				if (!calc.tileOnScreen(portal.getLocation())) {
 					walking.walkTileOnScreen(portal.getLocation());

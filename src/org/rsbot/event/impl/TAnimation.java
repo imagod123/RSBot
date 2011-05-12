@@ -1,21 +1,20 @@
 package org.rsbot.event.impl;
 
-import java.awt.Graphics;
-
 import org.rsbot.bot.Bot;
 import org.rsbot.event.listeners.TextPaintListener;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.util.StringUtil;
 
+import java.awt.*;
+
 public class TAnimation implements TextPaintListener {
 
 	private final MethodContext ctx;
 
-	public TAnimation(final Bot bot) {
+	public TAnimation(Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
-	@Override
 	public int drawLine(final Graphics render, int idx) {
 		int animation;
 		if (ctx.game.isLoggedIn()) {

@@ -1,8 +1,8 @@
 package org.rsbot.script.methods;
 
-import java.awt.Point;
-
 import org.rsbot.script.wrappers.RSTile;
+
+import java.awt.*;
 
 /**
  * Tile related operations.
@@ -27,16 +27,13 @@ public class Tiles extends MethodProvider {
 	 * @return <tt>true</tt> if no exceptions were thrown; otherwise
 	 *         <tt>false</tt>.
 	 */
-	public boolean doAction(final RSTile tile, final double xd, final double yd, final int h, final String action) {
-		return methods.tiles.doAction(tile, xd, yd, h, action, null);
-	}
-
-	public boolean doAction(final RSTile tile, final double xd, final double yd, final int h, final String action, final String option) {
-		final Point location = methods.calc.tileToScreen(tile, xd, yd, h);
+	public boolean doAction(final RSTile tile, final double xd,
+	                        final double yd, final int h, final String action) {
+		Point location = methods.calc.tileToScreen(tile, xd, yd, h);
 		if (location.x != -1 && location.y != -1) {
 			methods.mouse.move(location, 3, 3);
 			sleep(random(20, 100));
-			return methods.menu.doAction(action, option);
+			return methods.menu.doAction(action);
 		}
 		return false;
 	}
@@ -47,39 +44,35 @@ public class Tiles extends MethodProvider {
 	 * for the action in the context methods.menu.
 	 *
 	 * @param tile   The RSTile that you want to click.
-	 * @param action Action command to use click
-	 * @return <tt>true</tt> if the tile was clicked; otherwise
+	 * @param action Action command to use on the Character (e.g "Attack" or
+	 *               "Trade").
+	 * @return <tt>true</tt> if the Character was clicked; otherwise
 	 *         <tt>false</tt>.
 	 */
 	public boolean doAction(final RSTile tile, final String action) {
-		return methods.tiles.doAction(tile, action, null);
-	}
-
-	/**
-	 * Clicks a tile if it is on screen. It will left-click if the action is
-	 * available as the default menu action, otherwise it will right-click and check
-	 * for the action in the context methods.menu.
-	 *
-	 * @param tile   The RSTile that you want to click.
-	 * @param action Action of the menu entry to click
-	 * @param option Option of the menu entry to click
-	 * @return <tt>true</tt> if the tile was clicked; otherwise
-	 *         <tt>false</tt>.
-	 */
-	public boolean doAction(final RSTile tile, final String action, final String option) {
+		int counter = 0;
 		try {
-			for (int i = 0; i++ < 5;) {
-				final Point location = methods.calc.tileToScreen(tile);
-				if (location.x == -1 || location.y == -1) {
-					return false;
-				}
-				methods.mouse.move(location, 5, 5);
-				if (methods.menu.doAction(action, option)) {
-					return true;
-				}
+			Point location = methods.calc.tileToScreen(tile);
+			if (location.x == -1 || location.y == -1) {
+				return false;
 			}
-			return false;
-		} catch (final Exception e) {
+			methods.mouse.move(location, 5, 5);
+			while (!methods.menu.getItems()[0].toLowerCase().contains(
+					action.toLowerCase())
+					&& counter < 5) {
+				location = methods.calc.tileToScreen(tile);
+				methods.mouse.move(location, 5, 5);
+				counter++;
+			}
+			if (methods.menu.getItems()[0].toLowerCase().contains(
+					action.toLowerCase())) {
+				methods.mouse.click(true);
+			} else {
+				methods.mouse.click(false);
+				methods.menu.doAction(action);
+			}
+			return true;
+		} catch (Exception e) {
 			return false;
 		}
 	}
@@ -91,17 +84,34 @@ public class Tiles extends MethodProvider {
 	 *         not over the viewport.
 	 */
 	public RSTile getTileUnderMouse() {
-		final Point p = methods.mouse.getLocation();
+		Point p = methods.mouse.getLocation();
 		if (!methods.calc.pointOnScreen(p)) {
 			return null;
 		}
-		return getTileUnderPoint(p);
+		RSTile close = null;
+		for (int x = 0; x < 104; x++) {
+			for (int y = 0; y < 104; y++) {
+				RSTile t = new RSTile(x + methods.client.getBaseX(), y
+						+ methods.client.getBaseY());
+				Point s = methods.calc.tileToScreen(t);
+				if (s.x != -1 && s.y != -1) {
+					if (close == null) {
+						close = t;
+					}
+					if (methods.calc.tileToScreen(close).distance(p) > methods.calc
+							.tileToScreen(t).distance(p)) {
+						close = t;
+					}
+				}
+			}
+		}
+		return close;
 	}
 
 	/**
 	 * Gets the tile under a point.
 	 *
-	 * @param p The point.
+	 * @param p
 	 * @return RSTile at the point's location
 	 */
 	public RSTile getTileUnderPoint(final Point p) {
@@ -111,13 +121,15 @@ public class Tiles extends MethodProvider {
 		RSTile close = null;
 		for (int x = 0; x < 104; x++) {
 			for (int y = 0; y < 104; y++) {
-				final RSTile t = new RSTile(x + methods.client.getBaseX(), y + methods.client.getBaseY());
-				final Point s = methods.calc.tileToScreen(t);
+				RSTile t = new RSTile(x + methods.client.getBaseX(), y
+						+ methods.client.getBaseY());
+				Point s = methods.calc.tileToScreen(t);
 				if (s.x != -1 && s.y != -1) {
 					if (close == null) {
 						close = t;
 					}
-					if (methods.calc.tileToScreen(close).distance(p) > methods.calc.tileToScreen(t).distance(p)) {
+					if (methods.calc.tileToScreen(close).distance(p) > methods.calc
+							.tileToScreen(t).distance(p)) {
 						close = t;
 					}
 				}
@@ -134,7 +146,7 @@ public class Tiles extends MethodProvider {
 	 * @return True if the first tile is closer to the player than the second
 	 *         tile, otherwise false.
 	 */
-	public boolean isCloser(final RSTile t, final RSTile tt) {
+	public boolean isCloser(RSTile t, RSTile tt) {
 		return methods.calc.distanceTo(t) < methods.calc.distanceTo(tt);
 	}
 

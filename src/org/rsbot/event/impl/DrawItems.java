@@ -1,11 +1,5 @@
 package org.rsbot.event.impl;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Polygon;
-
 import org.rsbot.bot.Bot;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.script.methods.MethodContext;
@@ -14,15 +8,16 @@ import org.rsbot.script.wrappers.RSModel;
 import org.rsbot.script.wrappers.RSPlayer;
 import org.rsbot.script.wrappers.RSTile;
 
+import java.awt.*;
+
 public class DrawItems implements PaintListener {
 
 	private final MethodContext ctx;
 
-	public DrawItems(final Bot bot) {
+	public DrawItems(Bot bot) {
 		ctx = bot.getMethodContext();
 	}
 
-	@Override
 	public void onRepaint(final Graphics render) {
 		if (!ctx.game.isLoggedIn()) {
 			return;
@@ -44,10 +39,10 @@ public class DrawItems implements PaintListener {
 				}
 				final RSGroundItem[] items = ctx.groundItems.getAllAt(x, y);
 				if (items.length > 0) {
-					final RSModel model = items[0].getModel();
+					RSModel model = items[0].getModel();
 					if (model != null) {
 						render.setColor(Color.BLUE);
-						for (final Polygon polygon : model.getTriangles()) {
+						for (Polygon polygon : model.getTriangles()) {
 							render.drawPolygon(polygon);
 						}
 					}

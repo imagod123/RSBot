@@ -1,33 +1,28 @@
 package org.rsbot.loader.script.adapter;
 
-import java.util.Map;
-
-import org.rsbot.loader.asm.AnnotationVisitor;
-import org.rsbot.loader.asm.Attribute;
-import org.rsbot.loader.asm.ClassAdapter;
-import org.rsbot.loader.asm.ClassVisitor;
-import org.rsbot.loader.asm.Label;
-import org.rsbot.loader.asm.MethodVisitor;
+import org.rsbot.loader.asm.*;
 import org.rsbot.loader.script.CodeReader;
+
+import java.util.Map;
 
 /**
  * @author Jacmob
  */
 public class InsertCodeAdapter extends ClassAdapter {
 
-	private final String method_name;
-	private final String method_desc;
-	private final Map<Integer, byte[]> fragments;
-	private final int max_locals;
-	private final int max_stack;
+	private String method_name;
+	private String method_desc;
+	private Map<Integer, byte[]> fragments;
+	private int max_locals;
+	private int max_stack;
 
 	public InsertCodeAdapter(
-			final ClassVisitor delegate,
-			final String method_name,
-			final String method_desc,
-			final Map<Integer, byte[]> fragments,
-			final int max_locals,
-			final int max_stack) {
+			ClassVisitor delegate,
+			String method_name,
+			String method_desc,
+			Map<Integer, byte[]> fragments,
+			int max_locals,
+			int max_stack) {
 		super(delegate);
 		this.method_name = method_name;
 		this.method_desc = method_desc;
@@ -36,14 +31,13 @@ public class InsertCodeAdapter extends ClassAdapter {
 		this.max_stack = max_stack;
 	}
 
-	@Override
 	public MethodVisitor visitMethod(
 			final int access,
 			final String name,
 			final String desc,
 			final String signature,
 			final String[] exceptions) {
-		final MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+		MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
 		if (name.equals(method_name) && desc.equals(method_desc)) {
 			return new MethodAdapter(mv, fragments, max_locals, max_stack);
 		}
@@ -52,149 +46,126 @@ public class InsertCodeAdapter extends ClassAdapter {
 
 	static class MethodAdapter implements MethodVisitor {
 
-		private final MethodVisitor mv;
-		private final Map<Integer, byte[]> fragments;
-		private final int max_locals;
-		private final int max_stack;
+		private MethodVisitor mv;
+		private Map<Integer, byte[]> fragments;
+		private int max_locals;
+		private int max_stack;
 
 		private int idx = 0;
 
 		MethodAdapter(
-				final MethodVisitor delegate,
-				final Map<Integer, byte[]> fragments,
-				final int max_locals,
-				final int max_stack) {
-			mv = delegate;
+				MethodVisitor delegate,
+				Map<Integer, byte[]> fragments,
+				int max_locals,
+				int max_stack) {
+			this.mv = delegate;
 			this.fragments = fragments;
 			this.max_locals = max_locals;
 			this.max_stack = max_stack;
 		}
 
-		@Override
 		public AnnotationVisitor visitAnnotationDefault() {
 			return mv.visitAnnotationDefault();
 		}
 
-		@Override
-		public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+		public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 			return mv.visitAnnotation(desc, visible);
 		}
 
-		@Override
-		public AnnotationVisitor visitParameterAnnotation(final int parameter, final String desc, final boolean visible) {
+		public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
 			return mv.visitParameterAnnotation(parameter, desc, visible);
 		}
 
-		@Override
-		public void visitAttribute(final Attribute attr) {
+		public void visitAttribute(Attribute attr) {
 			mv.visitAttribute(attr);
 		}
 
-		@Override
 		public void visitCode() {
 			mv.visitCode();
 		}
 
-		@Override
-		public void visitFrame(final int type, final int nLocal, final Object[] local, final int nStack, final Object[] stack) {
+		public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
 
 		}
 
-		@Override
-		public void visitInsn(final int opcode) {
+		public void visitInsn(int opcode) {
 			checkFragments();
 			mv.visitInsn(opcode);
 		}
 
-		@Override
-		public void visitIntInsn(final int opcode, final int operand) {
+		public void visitIntInsn(int opcode, int operand) {
 			checkFragments();
 			mv.visitIntInsn(opcode, operand);
 		}
 
-		@Override
-		public void visitVarInsn(final int opcode, final int var) {
+		public void visitVarInsn(int opcode, int var) {
 			checkFragments();
 			mv.visitVarInsn(opcode, var);
 		}
 
-		@Override
-		public void visitTypeInsn(final int opcode, final String type) {
+		public void visitTypeInsn(int opcode, String type) {
 			checkFragments();
 			mv.visitTypeInsn(opcode, type);
 		}
 
-		@Override
-		public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
+		public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 			checkFragments();
 			mv.visitFieldInsn(opcode, owner, name, desc);
 		}
 
-		@Override
-		public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
+		public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 			checkFragments();
 			mv.visitMethodInsn(opcode, owner, name, desc);
 		}
 
-		@Override
-		public void visitJumpInsn(final int opcode, final Label label) {
+		public void visitJumpInsn(int opcode, Label label) {
 			checkFragments();
 			mv.visitJumpInsn(opcode, label);
 		}
 
-		@Override
-		public void visitLabel(final Label label) {
+		public void visitLabel(Label label) {
 			checkFragments();
 			mv.visitLabel(label);
 		}
 
-		@Override
-		public void visitLdcInsn(final Object cst) {
+		public void visitLdcInsn(Object cst) {
 			checkFragments();
 			mv.visitLdcInsn(cst);
 		}
 
-		@Override
-		public void visitIincInsn(final int var, final int increment) {
+		public void visitIincInsn(int var, int increment) {
 			checkFragments();
 			mv.visitIincInsn(var, increment);
 		}
 
-		@Override
-		public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label[] labels) {
+		public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
 			checkFragments();
 			mv.visitTableSwitchInsn(min, max, dflt, labels);
 		}
 
-		@Override
-		public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+		public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 			checkFragments();
 			mv.visitLookupSwitchInsn(dflt, keys, labels);
 		}
 
-		@Override
-		public void visitMultiANewArrayInsn(final String desc, final int dims) {
+		public void visitMultiANewArrayInsn(String desc, int dims) {
 			checkFragments();
 			mv.visitMultiANewArrayInsn(desc, dims);
 		}
 
-		@Override
-		public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final String type) {
+		public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 			mv.visitTryCatchBlock(start, end, handler, type);
 		}
 
-		@Override
-		public void visitLocalVariable(final String name, final String desc, final String signature, final Label start, final Label end, final int index) {
+		public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
 			mv.visitLocalVariable(name, desc, signature, start, end, index);
 		}
 
-		@Override
-		public void visitLineNumber(final int line, final Label start) {
+		public void visitLineNumber(int line, Label start) {
 
 		}
 
-		@Override
-		public void visitMaxs(final int maxStack, final int maxLocals) {
+		public void visitMaxs(int maxStack, int maxLocals) {
 			if (max_stack == -1) {
 				mv.visitMaxs(maxStack, maxLocals);
 			} else {
@@ -202,7 +173,6 @@ public class InsertCodeAdapter extends ClassAdapter {
 			}
 		}
 
-		@Override
 		public void visitEnd() {
 			mv.visitEnd();
 		}

@@ -1,20 +1,16 @@
 package org.rsbot.event.impl;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.HashMap;
-
 import org.rsbot.bot.Bot;
 import org.rsbot.event.listeners.PaintListener;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.wrappers.RSGroundItem;
 import org.rsbot.script.wrappers.RSModel;
 import org.rsbot.script.wrappers.RSObject;
+
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.HashMap;
 
 /**
  * @author Jacmob
@@ -34,57 +30,56 @@ public class DrawModel implements PaintListener, MouseListener {
 	private static final String[] OPTIONS = {"Objects", "Players", "NPCs", "Piles"};
 	private static boolean[] enabled = {true, true, true, true};
 
-	private final MethodContext ctx;
+	private MethodContext ctx;
 
-	public DrawModel(final Bot bot) {
-		ctx = bot.getMethodContext();
+	public DrawModel(Bot bot) {
+		this.ctx = bot.getMethodContext();
 	}
 
-	@Override
-	public void onRepaint(final Graphics render) {
+	public void onRepaint(Graphics render) {
 		drawRect(render);
 		if (enabled[0]) {
-			for (final org.rsbot.script.wrappers.RSObject o : ctx.objects.getAll()) {
-				final RSModel model = o.getModel();
+			for (org.rsbot.script.wrappers.RSObject o : ctx.objects.getAll()) {
+				RSModel model = o.getModel();
 				if (model != null) {
 					render.setColor(color_map.get(o.getType()));
-					for (final Polygon polygon : model.getTriangles()) {
+					for (Polygon polygon : model.getTriangles()) {
 						render.drawPolygon(polygon);
 					}
 					render.setColor(Color.GREEN);
-					final Point p = model.getPoint();
+					Point p = model.getPoint();
 					render.fillOval(p.x - 1, p.y - 1, 2, 2);
 				}
 			}
 		}
 		if (enabled[1]) {
-			for (final org.rsbot.script.wrappers.RSCharacter c : ctx.players.getAll()) {
-				final RSModel model = c.getModel();
+			for (org.rsbot.script.wrappers.RSCharacter c : ctx.players.getAll()) {
+				RSModel model = c.getModel();
 				if (model != null) {
 					render.setColor(Color.RED);
-					for (final Polygon polygon : model.getTriangles()) {
+					for (Polygon polygon : model.getTriangles()) {
 						render.drawPolygon(polygon);
 					}
 				}
 			}
 		}
 		if (enabled[2]) {
-			for (final org.rsbot.script.wrappers.RSCharacter c : ctx.npcs.getAll()) {
-				final RSModel model = c.getModel();
+			for (org.rsbot.script.wrappers.RSCharacter c : ctx.npcs.getAll()) {
+				RSModel model = c.getModel();
 				if (model != null) {
 					render.setColor(Color.MAGENTA);
-					for (final Polygon polygon : model.getTriangles()) {
+					for (Polygon polygon : model.getTriangles()) {
 						render.drawPolygon(polygon);
 					}
 				}
 			}
 		}
 		if (enabled[3]) {
-			for (final RSGroundItem item : ctx.groundItems.getAll()) {
-				final RSModel model = item.getModel();
+			for (RSGroundItem item : ctx.groundItems.getAll()) {
+				RSModel model = item.getModel();
 				if (model != null) {
 					render.setColor(Color.CYAN);
-					for (final Polygon polygon : model.getTriangles()) {
+					for (Polygon polygon : model.getTriangles()) {
 						render.drawPolygon(polygon);
 					}
 				}
@@ -92,30 +87,29 @@ public class DrawModel implements PaintListener, MouseListener {
 		}
 	}
 
-	public final void drawRect(final Graphics render) {
-		final Color j = Color.BLACK;
-		final Color w = Color.WHITE;
+	public final void drawRect(Graphics render) {
+		Color j = Color.BLACK;
+		Color w = Color.WHITE;
 		for (int i = 0; i < OPTIONS.length; i++) {
-			final int alpha = 150;
+			int alpha = 150;
 			render.setColor(new Color(j.getRed(), j.getGreen(), j.getBlue(), alpha));
 			if (enabled[i]) {
 				render.setColor(new Color(w.getRed(), w.getGreen(), w.getBlue(), alpha));
 			}
-			render.fillRect(90 + 80 * i, 3, 80, 12);
+			render.fillRect(90 + (80 * i), 3, 80, 12);
 			render.setColor(Color.white);
 			if (enabled[i]) {
 				render.setColor(Color.BLACK);
 			}
-			render.drawString(OPTIONS[i], 90 + 80 * i + 10, 13);
+			render.drawString(OPTIONS[i], 90 + (80 * i) + 10, 13);
 			render.setColor(Color.black);
-			render.drawRect(90 + 80 * i, 3, 80, 12);
+			render.drawRect(90 + (80 * i), 3, 80, 12);
 		}
 	}
 
-	@Override
-	public void mouseClicked(final MouseEvent e) {
+	public void mouseClicked(MouseEvent e) {
 		for (int i = 0; i < OPTIONS.length; i++) {
-			final Rectangle rect = new Rectangle(90 + 80 * i, 3, 80, 12);
+			Rectangle rect = new Rectangle(90 + (80 * i), 3, 80, 12);
 			if (rect.contains(e.getPoint())) {
 				enabled[i] = !enabled[i];
 				e.consume();
@@ -124,23 +118,19 @@ public class DrawModel implements PaintListener, MouseListener {
 		}
 	}
 
-	@Override
-	public void mouseEntered(final MouseEvent arg0) {
+	public void mouseEntered(MouseEvent arg0) {
 
 	}
 
-	@Override
-	public void mouseExited(final MouseEvent arg0) {
+	public void mouseExited(MouseEvent arg0) {
 
 	}
 
-	@Override
-	public void mousePressed(final MouseEvent arg0) {
+	public void mousePressed(MouseEvent arg0) {
 
 	}
 
-	@Override
-	public void mouseReleased(final MouseEvent arg0) {
+	public void mouseReleased(MouseEvent arg0) {
 
 	}
 }

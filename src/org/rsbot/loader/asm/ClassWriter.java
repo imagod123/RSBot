@@ -426,11 +426,11 @@ public class ClassWriter implements ClassVisitor {
 	 */
 	static {
 		int i;
-		final byte[] b = new byte[220];
-		final String s = "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD"
-			+ "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-			+ "AAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAA"
-			+ "AAAAGGGGGGGHHFBFAAFFAAQPIIJJIIIIIIIIIIIIIIIIII";
+		byte[] b = new byte[220];
+		String s = "AAAAAAAAAAAAAAAABCKLLDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD"
+				+ "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+				+ "AAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAIIIIIIIIIIIIIIIIDNOAA"
+				+ "AAAAGGGGGGGHHFBFAAFFAAQPIIJJIIIIIIIIIIIIIIIIII";
 		for (i = 0; i < b.length; ++i) {
 			b[i] = (byte) (s.charAt(i) - 'A');
 		}
@@ -455,8 +455,8 @@ public class ClassWriter implements ClassVisitor {
 		key = new Item();
 		key2 = new Item();
 		key3 = new Item();
-		computeMaxs = (flags & COMPUTE_MAXS) != 0;
-		computeFrames = (flags & COMPUTE_FRAMES) != 0;
+		this.computeMaxs = (flags & COMPUTE_MAXS) != 0;
+		this.computeFrames = (flags & COMPUTE_FRAMES) != 0;
 	}
 
 	/**
@@ -489,14 +489,13 @@ public class ClassWriter implements ClassVisitor {
 	public ClassWriter(final ClassReader classReader, final int flags) {
 		this(flags);
 		classReader.copyPool(this);
-		cr = classReader;
+		this.cr = classReader;
 	}
 
 	// ------------------------------------------------------------------------
 	// Implementation of the ClassVisitor interface
 	// ------------------------------------------------------------------------
 
-	@Override
 	public void visit(
 			final int version,
 			final int access,
@@ -521,7 +520,6 @@ public class ClassWriter implements ClassVisitor {
 		}
 	}
 
-	@Override
 	public void visitSource(final String file, final String debug) {
 		if (file != null) {
 			sourceFile = newUTF8(file);
@@ -531,7 +529,6 @@ public class ClassWriter implements ClassVisitor {
 		}
 	}
 
-	@Override
 	public void visitOuterClass(
 			final String owner,
 			final String name,
@@ -542,17 +539,16 @@ public class ClassWriter implements ClassVisitor {
 		}
 	}
 
-	@Override
 	public AnnotationVisitor visitAnnotation(
 			final String desc,
 			final boolean visible) {
 		if (!ClassReader.ANNOTATIONS) {
 			return null;
 		}
-		final ByteVector bv = new ByteVector();
+		ByteVector bv = new ByteVector();
 		// write type, and reserve space for values count
 		bv.putShort(newUTF8(desc)).putShort(0);
-		final AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
+		AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
 		if (visible) {
 			aw.next = anns;
 			anns = aw;
@@ -563,13 +559,11 @@ public class ClassWriter implements ClassVisitor {
 		return aw;
 	}
 
-	@Override
 	public void visitAttribute(final Attribute attr) {
 		attr.next = attrs;
 		attrs = attr;
 	}
 
-	@Override
 	public void visitInnerClass(
 			final String name,
 			final String outerName,
@@ -585,7 +579,6 @@ public class ClassWriter implements ClassVisitor {
 		innerClasses.putShort(access);
 	}
 
-	@Override
 	public FieldVisitor visitField(
 			final int access,
 			final String name,
@@ -595,7 +588,6 @@ public class ClassWriter implements ClassVisitor {
 		return new FieldWriter(this, access, name, desc, signature, value);
 	}
 
-	@Override
 	public MethodVisitor visitMethod(
 			final int access,
 			final String name,
@@ -612,7 +604,6 @@ public class ClassWriter implements ClassVisitor {
 				computeFrames);
 	}
 
-	@Override
 	public void visitEnd() {
 	}
 
@@ -696,12 +687,12 @@ public class ClassWriter implements ClassVisitor {
 		size += pool.length;
 		// allocates a byte vector of this size, in order to avoid unnecessary
 		// arraycopy operations in the ByteVector.enlarge() method
-		final ByteVector out = new ByteVector(size);
+		ByteVector out = new ByteVector(size);
 		out.putInt(0xCAFEBABE).putInt(version);
 		out.putShort(index).putByteArray(pool.data, 0, pool.length);
-		final int mask = Opcodes.ACC_DEPRECATED
-		| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-		| (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC);
+		int mask = Opcodes.ACC_DEPRECATED
+				| ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+				| ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / (ClassWriter.ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC));
 		out.putShort(access & ~mask).putShort(name).putShort(superName);
 		out.putShort(interfaceCount);
 		for (int i = 0; i < interfaceCount; ++i) {
@@ -727,7 +718,7 @@ public class ClassWriter implements ClassVisitor {
 			out.putShort(newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
 		}
 		if (sourceDebug != null) {
-			final int len = sourceDebug.length - 2;
+			int len = sourceDebug.length - 2;
 			out.putShort(newUTF8("SourceDebugExtension")).putInt(len);
 			out.putByteArray(sourceDebug.data, 2, len);
 		}
@@ -759,7 +750,7 @@ public class ClassWriter implements ClassVisitor {
 			attrs.put(this, null, 0, -1, -1, out);
 		}
 		if (invalidFrames) {
-			final ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+			ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
 			new ClassReader(out.data).accept(cw, ClassReader.SKIP_FRAMES);
 			return cw.toByteArray();
 		}
@@ -782,36 +773,36 @@ public class ClassWriter implements ClassVisitor {
 	 */
 	Item newConstItem(final Object cst) {
 		if (cst instanceof Integer) {
-			final int val = ((Integer) cst).intValue();
+			int val = ((Integer) cst).intValue();
 			return newInteger(val);
 		} else if (cst instanceof Byte) {
-			final int val = ((Byte) cst).intValue();
+			int val = ((Byte) cst).intValue();
 			return newInteger(val);
 		} else if (cst instanceof Character) {
-			final int val = ((Character) cst).charValue();
+			int val = ((Character) cst).charValue();
 			return newInteger(val);
 		} else if (cst instanceof Short) {
-			final int val = ((Short) cst).intValue();
+			int val = ((Short) cst).intValue();
 			return newInteger(val);
 		} else if (cst instanceof Boolean) {
-			final int val = ((Boolean) cst).booleanValue() ? 1 : 0;
+			int val = ((Boolean) cst).booleanValue() ? 1 : 0;
 			return newInteger(val);
 		} else if (cst instanceof Float) {
-			final float val = ((Float) cst).floatValue();
+			float val = ((Float) cst).floatValue();
 			return newFloat(val);
 		} else if (cst instanceof Long) {
-			final long val = ((Long) cst).longValue();
+			long val = ((Long) cst).longValue();
 			return newLong(val);
 		} else if (cst instanceof Double) {
-			final double val = ((Double) cst).doubleValue();
+			double val = ((Double) cst).doubleValue();
 			return newDouble(val);
 		} else if (cst instanceof String) {
 			return newString((String) cst);
 		} else if (cst instanceof Type) {
-			final Type t = (Type) cst;
+			Type t = (Type) cst;
 			return newClassItem(t.getSort() == Type.OBJECT
 					? t.getInternalName()
-							: t.getDescriptor());
+					: t.getDescriptor());
 		} else {
 			throw new IllegalArgumentException("value " + cst);
 		}
@@ -936,7 +927,7 @@ public class ClassWriter implements ClassVisitor {
 			final String name,
 			final String desc,
 			final boolean itf) {
-		final int type = itf ? IMETH : METH;
+		int type = itf ? IMETH : METH;
 		key3.set(type, owner, name, desc);
 		Item result = get(key3);
 		if (result == null) {
@@ -1122,7 +1113,7 @@ public class ClassWriter implements ClassVisitor {
 		key.type = TYPE_UNINIT;
 		key.intVal = offset;
 		key.strVal1 = type;
-		key.hashCode = 0x7FFFFFFF & TYPE_UNINIT + type.hashCode() + offset;
+		key.hashCode = 0x7FFFFFFF & (TYPE_UNINIT + type.hashCode() + offset);
 		Item result = get(key);
 		if (result == null) {
 			result = addType(key);
@@ -1139,13 +1130,13 @@ public class ClassWriter implements ClassVisitor {
 	 */
 	private Item addType(final Item item) {
 		++typeCount;
-		final Item result = new Item(typeCount, key);
+		Item result = new Item(typeCount, key);
 		put(result);
 		if (typeTable == null) {
 			typeTable = new Item[16];
 		}
 		if (typeCount == typeTable.length) {
-			final Item[] newTable = new Item[2 * typeTable.length];
+			Item[] newTable = new Item[2 * typeTable.length];
 			System.arraycopy(typeTable, 0, newTable, 0, typeTable.length);
 			typeTable = newTable;
 		}
@@ -1165,12 +1156,12 @@ public class ClassWriter implements ClassVisitor {
 	 */
 	int getMergedType(final int type1, final int type2) {
 		key2.type = TYPE_MERGED;
-		key2.longVal = type1 | (long) type2 << 32;
-		key2.hashCode = 0x7FFFFFFF & TYPE_MERGED + type1 + type2;
+		key2.longVal = type1 | (((long) type2) << 32);
+		key2.hashCode = 0x7FFFFFFF & (TYPE_MERGED + type1 + type2);
 		Item result = get(key2);
 		if (result == null) {
-			final String t = typeTable[type1].strVal1;
-			final String u = typeTable[type2].strVal1;
+			String t = typeTable[type1].strVal1;
+			String u = typeTable[type2].strVal1;
 			key2.intVal = addType(getCommonSuperClass(t, u));
 			result = new Item((short) 0, key2);
 			put(result);
@@ -1192,13 +1183,12 @@ public class ClassWriter implements ClassVisitor {
 	 * @return the internal name of the common super class of the two given
 	 *         classes.
 	 */
-	@SuppressWarnings("rawtypes")
 	protected String getCommonSuperClass(final String type1, final String type2) {
 		Class c, d;
 		try {
 			c = Class.forName(type1.replace('/', '.'));
 			d = Class.forName(type2.replace('/', '.'));
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
 		if (c.isAssignableFrom(d)) {
@@ -1241,14 +1231,14 @@ public class ClassWriter implements ClassVisitor {
 	 */
 	private void put(final Item i) {
 		if (index > threshold) {
-			final int ll = items.length;
-			final int nl = ll * 2 + 1;
-			final Item[] newItems = new Item[nl];
+			int ll = items.length;
+			int nl = ll * 2 + 1;
+			Item[] newItems = new Item[nl];
 			for (int l = ll - 1; l >= 0; --l) {
 				Item j = items[l];
 				while (j != null) {
-					final int index = j.hashCode % newItems.length;
-					final Item k = j.next;
+					int index = j.hashCode % newItems.length;
+					Item k = j.next;
 					j.next = newItems[index];
 					newItems[index] = j;
 					j = k;
@@ -1257,7 +1247,7 @@ public class ClassWriter implements ClassVisitor {
 			items = newItems;
 			threshold = (int) (nl * 0.75);
 		}
-		final int index = i.hashCode % items.length;
+		int index = i.hashCode % items.length;
 		i.next = items[index];
 		items[index] = i;
 	}

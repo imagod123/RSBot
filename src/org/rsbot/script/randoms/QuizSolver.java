@@ -14,9 +14,9 @@ import org.rsbot.script.wrappers.RSNPC;
 public class QuizSolver extends Random {
 
 	public class QuizQuestion {
-		final int ID_One;
-		final int ID_Two;
-		final int ID_Three;
+		int ID_One;
+		int ID_Two;
+		int ID_Three;
 		int answer;
 
 		public QuizQuestion(final int One, final int Two, final int Three) {
@@ -51,7 +51,7 @@ public class QuizSolver extends Random {
 		public boolean clickAnswer() {
 			answer = -1;
 			int count = 0;
-			sleep(random(1000, 1700));
+
 			for (int j = 0; j < items.length; j++) {
 				if (arrayContains(items[j], ID_One)) {
 					log.info("Slot 1: " + names[j]);
@@ -101,14 +101,14 @@ public class QuizSolver extends Random {
 		}
 	}
 
-	public final int quizInterface = 191;
-	public final int[] Fish = {6190, 6189};
-	public final int[] Jewelry = {6198, 6197};
-	public final int[] Weapons = {6192, 6194};
-	public final int[] Farming = {6195, 6196};
-	public final int[][] items = {Fish, Jewelry, Weapons, Farming};
+	public int quizInterface = 191;
+	public int[] Fish = {6190, 6189};
+	public int[] Jewelry = {6198, 6197};
+	public int[] Weapons = {6192, 6194};
+	public int[] Farming = {6195, 6196};
+	public int[][] items = {Fish, Jewelry, Weapons, Farming};
 
-	public final String[] names = {"Fish", "Jewelry", "Weapons", "Farming"};
+	public String[] names = {"Fish", "Jewelry", "Weapons", "Farming"};
 
 	@Override
 	public boolean activateCondition() {
@@ -122,14 +122,14 @@ public class QuizSolver extends Random {
 
 	public boolean atSlot(final int slot) {
 		switch (slot) {
-		case 1:
-			return interfaces.getComponent(quizInterface, 3).doClick();
-		case 2:
-			return interfaces.getComponent(quizInterface, 4).doClick();
-		case 3:
-			return interfaces.getComponent(quizInterface, 5).doClick();
-		default:
-			return false;
+			case 1:
+				return interfaces.getComponent(quizInterface, 3).doClick();
+			case 2:
+				return interfaces.getComponent(quizInterface, 4).doClick();
+			case 3:
+				return interfaces.getComponent(quizInterface, 5).doClick();
+			default:
+				return false;
 		}
 	}
 
@@ -172,17 +172,17 @@ public class QuizSolver extends Random {
 
 	public int Slot_to_ID(final int slot) {
 		switch (slot) {
-		case 1:
-			//System.out.println(interfaces.get(quizInterface).getComponent(6).getComponentID());
-			return interfaces.get(quizInterface).getComponent(6).getComponentID();
-		case 2:
-			//System.out.println(interfaces.get(quizInterface).getComponent(7).getComponentID());
-			return interfaces.get(quizInterface).getComponent(7).getComponentID();
-		case 3:
-			//System.out.println(interfaces.get(quizInterface).getComponent(8).getComponentID());
-			return interfaces.get(quizInterface).getComponent(8).getComponentID();
-		default:
-			return -1;
+			case 1:
+				//System.out.println(interfaces.get(quizInterface).getComponent(6).getComponentID());
+				return interfaces.get(quizInterface).getComponent(6).getComponentID();
+			case 2:
+				//System.out.println(interfaces.get(quizInterface).getComponent(7).getComponentID());
+				return interfaces.get(quizInterface).getComponent(7).getComponentID();
+			case 3:
+				//System.out.println(interfaces.get(quizInterface).getComponent(8).getComponentID());
+				return interfaces.get(quizInterface).getComponent(8).getComponentID();
+			default:
+				return -1;
 		}
 	}
 }

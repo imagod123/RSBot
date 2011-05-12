@@ -1,12 +1,6 @@
 package org.rsbot.loader;
 
-import org.rsbot.loader.asm.AnnotationVisitor;
-import org.rsbot.loader.asm.Attribute;
-import org.rsbot.loader.asm.ClassVisitor;
-import org.rsbot.loader.asm.FieldVisitor;
-import org.rsbot.loader.asm.Label;
-import org.rsbot.loader.asm.MethodVisitor;
-import org.rsbot.loader.asm.Opcodes;
+import org.rsbot.loader.asm.*;
 
 /**
  * @author Jacmob
@@ -19,174 +13,141 @@ public class VersionVisitor implements ClassVisitor {
 		return version;
 	}
 
-	@Override
-	public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
+	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 
 	}
 
-	@Override
-	public void visitSource(final String source, final String debug) {
+	public void visitSource(String source, String debug) {
 
 	}
 
-	@Override
-	public void visitOuterClass(final String owner, final String name, final String desc) {
+	public void visitOuterClass(String owner, String name, String desc) {
 
 	}
 
-	@Override
-	public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		return null;
 	}
 
-	@Override
-	public void visitAttribute(final Attribute attr) {
+	public void visitAttribute(Attribute attr) {
 
 	}
 
-	@Override
-	public void visitInnerClass(final String name, final String outerName, final String innerName, final int access) {
+	public void visitInnerClass(String name, String outerName, String innerName, int access) {
 
 	}
 
-	@Override
-	public FieldVisitor visitField(final int access, final String name, final String desc, final String signature, final Object value) {
+	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		return null;
 	}
 
-	@Override
-	public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
+	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		if (!name.equals("main")) {
 			return null;
 		}
 		return new MethodVisitor() {
 
-			@Override
 			public AnnotationVisitor visitAnnotationDefault() {
 				return null;
 			}
 
-			@Override
-			public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+			public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 				return null;
 			}
 
-			@Override
-			public AnnotationVisitor visitParameterAnnotation(final int parameter, final String desc, final boolean visible) {
+			public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
 
 				return null;
 			}
 
-			@Override
-			public void visitAttribute(final Attribute attr) {
+			public void visitAttribute(Attribute attr) {
 
 			}
 
-			@Override
 			public void visitCode() {
 
 			}
 
-			@Override
-			public void visitFrame(final int type, final int nLocal, final Object[] local, final int nStack, final Object[] stack) {
+			public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
 
 			}
 
-			@Override
-			public void visitInsn(final int opcode) {
+			public void visitInsn(int opcode) {
 
 			}
 
-			@Override
-			public void visitIntInsn(final int opcode, final int operand) {
+			public void visitIntInsn(int opcode, int operand) {
 				if (opcode == Opcodes.SIPUSH && operand > 400 && operand < 768) {
 					version = operand;
 				}
 			}
 
-			@Override
-			public void visitVarInsn(final int opcode, final int var) {
+			public void visitVarInsn(int opcode, int var) {
 
 			}
 
-			@Override
-			public void visitTypeInsn(final int opcode, final String type) {
+			public void visitTypeInsn(int opcode, String type) {
 
 			}
 
-			@Override
-			public void visitFieldInsn(final int opcode, final String owner, final String name, final String desc) {
+			public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 
 			}
 
-			@Override
-			public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
+			public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 
 			}
 
-			@Override
-			public void visitJumpInsn(final int opcode, final Label label) {
+			public void visitJumpInsn(int opcode, Label label) {
 
 			}
 
-			@Override
-			public void visitLabel(final Label label) {
+			public void visitLabel(Label label) {
 
 			}
 
-			@Override
-			public void visitLdcInsn(final Object cst) {
+			public void visitLdcInsn(Object cst) {
 
 			}
 
-			@Override
-			public void visitIincInsn(final int var, final int increment) {
+			public void visitIincInsn(int var, int increment) {
 
 			}
 
-			@Override
-			public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label[] labels) {
+			public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
 
 			}
 
-			@Override
-			public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+			public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 
 			}
 
-			@Override
-			public void visitMultiANewArrayInsn(final String desc, final int dims) {
+			public void visitMultiANewArrayInsn(String desc, int dims) {
 
 			}
 
-			@Override
-			public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final String type) {
+			public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 
 			}
 
-			@Override
-			public void visitLocalVariable(final String name, final String desc, final String signature, final Label start, final Label end, final int index) {
+			public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
 
 			}
 
-			@Override
-			public void visitLineNumber(final int line, final Label start) {
+			public void visitLineNumber(int line, Label start) {
 
 			}
 
-			@Override
-			public void visitMaxs(final int maxStack, final int maxLocals) {
+			public void visitMaxs(int maxStack, int maxLocals) {
 
 			}
 
-			@Override
 			public void visitEnd() {
 
 			}
 		};
 	}
 
-	@Override
 	public void visitEnd() {
 
 	}

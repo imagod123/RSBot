@@ -1,13 +1,13 @@
 package org.rsbot.script.methods;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.rsbot.client.RSAnimableNode;
 import org.rsbot.script.util.Filter;
 import org.rsbot.script.wrappers.RSObject;
 import org.rsbot.script.wrappers.RSObjectDef;
 import org.rsbot.script.wrappers.RSTile;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Provides access to in-game physical objects.
@@ -23,8 +23,7 @@ public class Objects extends MethodProvider {
 	 * A filter that accepts all matches.
 	 */
 	public static final Filter<RSObject> ALL_FILTER = new Filter<RSObject>() {
-		@Override
-		public boolean accept(final RSObject npc) {
+		public boolean accept(RSObject npc) {
 			return true;
 		}
 	};
@@ -51,10 +50,10 @@ public class Objects extends MethodProvider {
 	 *         region.
 	 */
 	public RSObject[] getAll(final Filter<RSObject> filter) {
-		final Set<RSObject> objects = new LinkedHashSet<RSObject>();
+		Set<RSObject> objects = new LinkedHashSet<RSObject>();
 		for (int x = 0; x < 104; x++) {
 			for (int y = 0; y < 104; y++) {
-				for (final RSObject o : getAtLocal(x, y, -1)) {
+				for (RSObject o : getAtLocal(x, y, -1)) {
 					if (filter.accept(o)) {
 						objects.add(o);
 					}
@@ -78,10 +77,10 @@ public class Objects extends MethodProvider {
 		double dist = -1;
 		for (int x = 0; x < 104; x++) {
 			for (int y = 0; y < 104; y++) {
-				final Set<RSObject> objs = getAtLocal(x, y, -1);
-				for (final RSObject o : objs) {
+				Set<RSObject> objs = getAtLocal(x, y, -1);
+				for (RSObject o : objs) {
 					if (filter.accept(o)) {
-						final double distTmp = methods.calc.distanceBetween(
+						double distTmp = methods.calc.distanceBetween(
 								methods.players.getMyPlayer().getLocation(),
 								o.getLocation());
 						if (cur == null) {
@@ -110,9 +109,8 @@ public class Objects extends MethodProvider {
 	 */
 	public RSObject getNearest(final int... ids) {
 		return getNearest(new Filter<RSObject>() {
-			@Override
-			public boolean accept(final RSObject o) {
-				for (final int id : ids) {
+			public boolean accept(RSObject o) {
+				for (int id : ids) {
 					if (o.getID() == id) {
 						return true;
 					}
@@ -133,11 +131,10 @@ public class Objects extends MethodProvider {
 	 */
 	public RSObject getNearest(final String... names) {
 		return getNearest(new Filter<RSObject>() {
-			@Override
-			public boolean accept(final RSObject o) {
-				final RSObjectDef def = o.getDef();
+			public boolean accept(RSObject o) {
+				RSObjectDef def = o.getDef();
 				if (def != null) {
-					for (final String name : names) {
+					for (String name : names) {
 						if (name.equals(def.getName())) {
 							return true;
 						}
@@ -168,7 +165,7 @@ public class Objects extends MethodProvider {
 	 *         flags; or null if none found.
 	 */
 	public RSObject getTopAt(final RSTile t, final int mask) {
-		final RSObject[] objects = getAt(t, mask);
+		RSObject[] objects = getAt(t, mask);
 		return objects.length > 0 ? objects[0] : null;
 	}
 
@@ -181,7 +178,7 @@ public class Objects extends MethodProvider {
 	 * @return An RSObject[] of the objects on the specified tile.
 	 */
 	public RSObject[] getAt(final RSTile t, final int mask) {
-		final Set<RSObject> objects = getAtLocal(
+		Set<RSObject> objects = getAtLocal(
 				t.getX() - methods.client.getBaseX(),
 				t.getY() - methods.client.getBaseY(), mask);
 		return objects.toArray(new RSObject[objects.size()]);
@@ -195,22 +192,22 @@ public class Objects extends MethodProvider {
 	 * @return An RSObject[] of the objects on the specified tile.
 	 */
 	public RSObject[] getAllAt(final RSTile t) {
-		final Set<RSObject> objects = getAtLocal(
+		Set<RSObject> objects = getAtLocal(
 				t.getX() - methods.client.getBaseX(),
 				t.getY() - methods.client.getBaseY(), -1);
 		return objects.toArray(new RSObject[objects.size()]);
 	}
 
 	private Set<RSObject> getAtLocal(int x, int y, final int mask) {
-		final org.rsbot.client.Client client = methods.client;
-		final Set<RSObject> objects = new LinkedHashSet<RSObject>();
+		org.rsbot.client.Client client = methods.client;
+		Set<RSObject> objects = new LinkedHashSet<RSObject>();
 		if (client.getRSGroundArray() == null) {
 			return objects;
 		}
 
 		try {
-			final int plane = client.getPlane();
-			final org.rsbot.client.RSGround rsGround = client.getRSGroundArray()[plane][x][y];
+			int plane = client.getPlane();
+			org.rsbot.client.RSGround rsGround = client.getRSGroundArray()[plane][x][y];
 
 			if (rsGround != null) {
 				org.rsbot.client.RSObject rsObj;
@@ -222,7 +219,7 @@ public class Objects extends MethodProvider {
 				// Interactable (e.g. Trees)
 				if ((mask & TYPE_INTERACTABLE) != 0) {
 					for (RSAnimableNode node = rsGround.getRSAnimableList(); node != null; node = node
-					.getNext()) {
+							.getNext()) {
 						obj = node.getRSAnimable();
 						if (obj != null
 								&& obj instanceof org.rsbot.client.RSObject) {
@@ -289,7 +286,7 @@ public class Objects extends MethodProvider {
 					}
 				}
 			}
-		} catch (final Exception ignored) {
+		} catch (Exception ignored) {
 		}
 		return objects;
 	}

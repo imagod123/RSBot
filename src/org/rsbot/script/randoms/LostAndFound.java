@@ -27,7 +27,6 @@ public class LostAndFound extends Random {
 
 	final int setting = 531;
 
-	@Override
 	public boolean activateCondition() {
 		return game.isLoggedIn() && objects.getNearest(appendN) != null;
 	}
@@ -39,7 +38,7 @@ public class LostAndFound extends Random {
 			for (int y = 0; y < 104; y++) {
 				final RSObject[] objs = objects.getAllAt(new RSTile(x + game.getBaseX(), y + game.getBaseY()));
 				if (objs.length > 0) {
-					final RSObject o = objs[0];
+					RSObject o = objs[0];
 					boolean isObject = false;
 					for (final int id : ids) {
 						if (o.getID() == id) {
@@ -91,7 +90,6 @@ public class LostAndFound extends Random {
 		return random(8994, 8998);
 	}
 
-	@Override
 	public int loop() {
 		if (interfaces.canContinue()) {
 			interfaces.clickContinue();

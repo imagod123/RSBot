@@ -30,16 +30,16 @@ public class Hiscores extends MethodProvider {
 	 * @return An instance of Hiscores.Stats; <code>null</code> if unable to
 	 *         fetch data.
 	 */
-	public Stats lookup(final String username) {
+	public Stats lookup(String username) {
 		if (username != null && !username.isEmpty()) {
 			try {
-				final URL url = new URL(Hiscores.HOST + Hiscores.GET + username);
-				final BufferedReader br = new BufferedReader(new InputStreamReader(
+				URL url = new URL(Hiscores.HOST + Hiscores.GET + username);
+				BufferedReader br = new BufferedReader(new InputStreamReader(
 						url.openStream()));
 				String[] html;
-				final int[] exps = new int[26];
-				final int[] lvls = new int[26];
-				final int[] ranks = new int[26];
+				int[] exps = new int[26];
+				int[] lvls = new int[26];
+				int[] ranks = new int[26];
 				for (int i = 0; i < 26; i++) {
 					html = br.readLine().split(",");
 					exps[i] = Integer.parseInt(html[2]);
@@ -48,7 +48,7 @@ public class Hiscores extends MethodProvider {
 				}
 				br.close();
 				return new Stats(username, exps, lvls, ranks);
-			} catch (final IOException ignored) {
+			} catch (IOException ignored) {
 			}
 		}
 		return null;
@@ -61,13 +61,13 @@ public class Hiscores extends MethodProvider {
 	 */
 	public static class Stats {
 
-		private final String username;
+		private String username;
 
-		private final int[] exps;
-		private final int[] lvls;
-		private final int[] ranks;
+		private int[] exps;
+		private int[] lvls;
+		private int[] ranks;
 
-		Stats(final String username, final int[] exps, final int[] lvls, final int[] ranks) {
+		Stats(String username, int[] exps, int[] lvls, int[] ranks) {
 			this.username = username;
 			this.exps = exps;
 			this.lvls = lvls;
@@ -80,7 +80,7 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The experience or -1
 		 */
-		public int getExperience(final int index) {
+		public int getExperience(int index) {
 			if (index < 0 || index >= exps.length - 1) {
 				throw new IllegalArgumentException("Illegal skill index: "
 						+ index);
@@ -94,7 +94,7 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The level or -1
 		 */
-		public int getLevel(final int index) {
+		public int getLevel(int index) {
 			if (index < 0 || index >= exps.length - 1) {
 				throw new IllegalArgumentException("Illegal skill index: "
 						+ index);
@@ -108,7 +108,7 @@ public class Hiscores extends MethodProvider {
 		 * @param index The index of the skill
 		 * @return The rank or -1
 		 */
-		public int getRank(final int index) {
+		public int getRank(int index) {
 			if (index < 0 || index >= exps.length - 1) {
 				throw new IllegalArgumentException("Illegal skill index: "
 						+ index);
@@ -154,7 +154,7 @@ public class Hiscores extends MethodProvider {
 
 		@Override
 		public String toString() {
-			final StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			sb.append(username).append("[overall:");
 			sb.append(lvls[0]).append(",").append(ranks[0]);
 			sb.append(",").append(exps[0]).append(" ");

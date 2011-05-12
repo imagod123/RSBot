@@ -26,20 +26,20 @@ public class CodeReader {
 		int LABEL = 15;
 	}
 
-	private final Buffer code;
+	private Buffer code;
 
-	public CodeReader(final byte[] code) {
+	public CodeReader(byte[] code) {
 		this.code = new Buffer(code);
 	}
 
-	public void accept(final MethodVisitor v) {
+	public void accept(MethodVisitor v) {
 		int len = code.g2();
-		final Label[] labels = new Label[code.g1()];
+		Label[] labels = new Label[code.g1()];
 		for (int i = 0, l = labels.length; i < l; ++i) {
 			labels[i] = new Label();
 		}
 		while (len-- > 0) {
-			final int op = code.g1();
+			int op = code.g1();
 			if (op == Opcodes.INSN) {
 				v.visitInsn(code.g1());
 			} else if (op == Opcodes.INT_INSN) {
@@ -55,7 +55,7 @@ public class CodeReader {
 			} else if (op == Opcodes.JUMP_INSN) {
 				v.visitJumpInsn(code.g1(), labels[code.g1()]);
 			} else if (op == Opcodes.LDC_INSN) {
-				final int type = code.g1();
+				int type = code.g1();
 				if (type == 1) {
 					v.visitLdcInsn(code.g4());
 				} else if (type == 2) {
@@ -70,26 +70,25 @@ public class CodeReader {
 			} else if (op == Opcodes.IINC_INSN) {
 				v.visitIincInsn(code.g1(), code.g1());
 			} else if (op == Opcodes.TABLESWITCH_INSN) {
-				final int min = code.g2();
-				final int max = code.g2();
-				final Label dflt = labels[code.g1()];
-				final int n = code.g1();
-				int ptr = 0;
-				final Label[] lbls = new Label[n];
+				int min = code.g2();
+				int max = code.g2();
+				Label dflt = labels[code.g1()];
+				int n = code.g1(), ptr = 0;
+				Label[] lbls = new Label[n];
 				while (ptr < n) {
 					lbls[ptr++] = labels[code.g1()];
 				}
 				v.visitTableSwitchInsn(min, max, dflt, lbls);
 			} else if (op == Opcodes.LOOKUPSWITCH_INSN) {
-				final Label dflt = labels[code.g1()];
+				Label dflt = labels[code.g1()];
 				int n = code.g1(), ptr = 0;
-				final int[] keys = new int[n];
+				int[] keys = new int[n];
 				while (ptr < n) {
 					keys[ptr++] = code.g2();
 				}
 				n = code.g1();
 				ptr = 0;
-				final Label[] lbls = new Label[n];
+				Label[] lbls = new Label[n];
 				while (ptr < n) {
 					lbls[ptr++] = labels[code.g1()];
 				}

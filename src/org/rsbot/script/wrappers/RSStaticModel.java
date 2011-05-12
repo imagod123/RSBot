@@ -7,23 +7,20 @@ class RSStaticModel extends RSModel {
 
 	private final int x, y;
 
-	RSStaticModel(final MethodContext ctx, final LDModel model, final int x, final int y) {
+	RSStaticModel(MethodContext ctx, LDModel model, int x, int y) {
 		super(ctx, model);
 		this.x = x;
 		this.y = y;
 	}
 
-	@Override
 	protected void update() {
 
 	}
 
-	@Override
 	protected int getLocalX() {
 		return x;
 	}
 
-	@Override
 	protected int getLocalY() {
 		return y;
 	}

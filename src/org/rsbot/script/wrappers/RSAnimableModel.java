@@ -11,12 +11,11 @@ class RSAnimableModel extends RSModel {
 
 	private final RSAnimable animable;
 
-	RSAnimableModel(final MethodContext ctx, final Model model, final RSAnimable animable) {
+	RSAnimableModel(MethodContext ctx, Model model, RSAnimable animable) {
 		super(ctx, model);
 		this.animable = animable;
 	}
 
-	@Override
 	protected void update() {
 
 	}
