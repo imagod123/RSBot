@@ -281,7 +281,7 @@ public class GlobalConfiguration {
 			return Toolkit.getDefaultToolkit().getImage(
 					GlobalConfiguration.RUNNING_FROM_JAR ? GlobalConfiguration.class.getResource(resource) :
 							new File(path).toURI().toURL());
-		} catch (Exception ignored) {
+		} catch (final Exception e) {
 		}
 		return null;
 	}
@@ -331,7 +331,7 @@ public class GlobalConfiguration {
 			reader = new BufferedReader(is);
 			String s = reader.readLine().trim();
 			return Integer.parseInt(s);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 		} finally {
 			try {
 				if (is != null) {
@@ -340,7 +340,7 @@ public class GlobalConfiguration {
 				if (reader != null) {
 					reader.close();
 				}
-			} catch (IOException ioe) {
+			} catch (final IOException ioe) {
 			}
 		}
 		return -1;
